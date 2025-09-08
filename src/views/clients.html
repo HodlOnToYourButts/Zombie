@@ -1,0 +1,160 @@
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h6>Active Clients</h6>
+                <h3>{{clientStats.activeClients}}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <h6>Confidential Clients</h6>
+                <h3>{{clientStats.confidentialClients}}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h6>Public Clients</h6>
+                <h3>{{clientStats.publicClients}}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <h6>Total Clients</h6>
+                <h3>{{clientStats.totalClients}}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0"><i class="bi bi-gear"></i> Client Management</h4>
+        <a href="/admin/clients/new" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Add Client
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Client ID</th>
+                        <th>Type</th>
+                        <th>Redirect URIs</th>
+                        <th>Scopes</th>
+                        <th>Status</th>
+                        <th>Sync</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each clients}}
+                    <tr>
+                        <td>
+                            <strong>{{this.name}}</strong>
+                            {{#if this.description}}
+                            <br><small class="text-muted">{{this.description}}</small>
+                            {{/if}}
+                        </td>
+                        <td><code>{{this.clientId}}</code></td>
+                        <td>
+                            {{#if this.confidential}}
+                            <span class="badge bg-primary">Confidential</span>
+                            {{else}}
+                            <span class="badge bg-info">Public</span>
+                            {{/if}}
+                        </td>
+                        <td>
+                            {{#each this.redirectUris}}
+                            <div><small><code>{{this}}</code></small></div>
+                            {{/each}}
+                        </td>
+                        <td>
+                            {{#each this.scopes}}
+                            <span class="badge bg-light text-dark me-1">{{this}}</span>
+                            {{/each}}
+                        </td>
+                        <td>
+                            <span class="badge bg-{{#if this.enabled}}success{{else}}danger{{/if}}">
+                                {{#if this.enabled}}Enabled{{else}}Disabled{{/if}}
+                            </span>
+                        </td>
+                        <td>
+                            {{#if (eq this.syncStatus "synced")}}
+                            <span class="badge bg-success" title="In sync with cluster">
+                                <i class="bi bi-check-circle"></i> Synced
+                            </span>
+                            {{else if (eq this.syncStatus "isolated")}}
+                            <span class="badge bg-warning text-dark" title="Modified while cluster nodes were unreachable">
+                                <i class="bi bi-cloud-slash"></i> Isolated
+                            </span>
+                            {{else if (eq this.syncStatus "conflict")}}
+                            <a href="/admin/conflicts/client/{{this.id}}" class="badge bg-primary text-decoration-none" title="Has conflicts - click to view details">
+                                <i class="bi bi-exclamation-triangle"></i> Conflict
+                            </a>
+                            {{else if (eq this.syncStatus "error")}}
+                            <span class="badge bg-danger" title="Sync error - check logs">
+                                <i class="bi bi-x-circle"></i> Error
+                            </span>
+                            {{else}}
+                            <span class="badge bg-secondary" title="Sync status unknown">
+                                <i class="bi bi-question-circle"></i> Unknown
+                            </span>
+                            {{/if}}
+                        </td>
+                        <td class="text-muted">
+                            {{formatDate this.createdAt}}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="/admin/clients/{{this.id}}" class="btn btn-outline-primary" title="View Details">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="/admin/clients/{{this.id}}/edit" class="btn btn-outline-warning" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                {{#if this.enabled}}
+                                {{#unless this.isDefaultClient}}
+                                <button class="btn btn-outline-secondary" data-action="toggle-client" data-client-id="{{this.id}}" data-enabled="false" title="Disable">
+                                    <i class="bi bi-pause"></i>
+                                </button>
+                                {{/unless}}
+                                {{else}}
+                                <button class="btn btn-outline-success" data-action="toggle-client" data-client-id="{{this.id}}" data-enabled="true" title="Enable">
+                                    <i class="bi bi-play"></i>
+                                </button>
+                                {{/if}}
+                                <button class="btn btn-outline-info" data-action="regenerate-secret" data-client-id="{{this.id}}" title="Regenerate Secret">
+                                    <i class="bi bi-arrow-clockwise"></i>
+                                </button>
+                                {{#unless this.isDefaultClient}}
+                                <button class="btn btn-outline-danger" data-action="delete-client" data-client-id="{{this.id}}" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                {{/unless}}
+                            </div>
+                        </td>
+                    </tr>
+                    {{else}}
+                    <tr>
+                        <td colspan="9" class="text-center py-4 text-muted">
+                            No clients found. <a href="/admin/clients/new">Create the first client</a>
+                        </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="/js/admin-clients.js"></script>

@@ -1,0 +1,393 @@
+/* ZombieAuth Apocalyptic Theme - Readability Focused */
+
+/* Color Variables */
+:root {
+    --zombie-bg: #0f0f0f;
+    --zombie-card-bg: #1a1a1a;
+    --zombie-text: #e8e8e8;
+    --zombie-text-dim: #b8b8b8;
+    --rotten-green: #4a5d23;
+    --bright-green: #6b8e23;
+    --blood-red: #8b1a1a;
+    --bright-red: #dc2626;
+    --rusty-orange: #b5651d;
+    --bright-orange: #ea580c;
+    --hazard-yellow: #d97706;
+    --border-color: rgba(75, 93, 35, 0.3);
+}
+
+/* Dark navbar override */
+.navbar-dark {
+    background: linear-gradient(135deg, var(--zombie-bg) 0%, #1a1a1a 100%) !important;
+    border-bottom: 2px solid var(--border-color);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+}
+
+.navbar-brand {
+    color: var(--hazard-yellow) !important;
+    text-shadow: 0 0 8px rgba(217, 119, 6, 0.6);
+    font-weight: 600;
+}
+
+.navbar-nav .nav-link {
+    color: var(--zombie-text) !important;
+    transition: all 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+    color: var(--bright-orange) !important;
+    text-shadow: 0 0 5px rgba(234, 88, 12, 0.5);
+}
+
+.navbar-nav .nav-link.active {
+    color: var(--hazard-yellow) !important;
+    font-weight: 500;
+}
+
+/* Dark body background */
+body {
+    background: var(--zombie-bg);
+    background-attachment: fixed;
+    color: var(--zombie-text);
+    min-height: 100vh;
+}
+
+/* Card styling */
+.card {
+    background: var(--zombie-card-bg);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.card-header {
+    background: linear-gradient(135deg, var(--blood-red), var(--bright-red));
+    border-bottom: 1px solid var(--border-color);
+    color: var(--zombie-text);
+}
+
+.card-body {
+    color: var(--zombie-text);
+}
+
+/* This is overridden above in the h1-h6 section */
+
+/* Stat cards */
+.bg-primary {
+    background: linear-gradient(135deg, var(--rusty-orange), var(--bright-orange)) !important;
+    color: var(--zombie-text) !important;
+}
+
+.bg-success {
+    background: linear-gradient(135deg, var(--rotten-green), var(--bright-green)) !important;
+    color: var(--zombie-text) !important;
+}
+
+.bg-info {
+    background: linear-gradient(135deg, #2a2a2a, #404040) !important;
+    color: var(--zombie-text) !important;
+}
+
+.bg-warning {
+    background: linear-gradient(135deg, var(--hazard-yellow), #fbbf24) !important;
+    color: var(--zombie-bg) !important;
+}
+
+/* Tables */
+.table {
+    color: var(--zombie-text);
+    background-color: transparent;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) > td {
+    background-color: rgba(75, 93, 35, 0.1);
+}
+
+.table th {
+    border-color: var(--border-color);
+    color: var(--bright-orange);
+    font-weight: 600;
+    background-color: rgba(75, 93, 35, 0.2);
+}
+
+.table td {
+    border-color: rgba(75, 93, 35, 0.2);
+    color: var(--zombie-text) !important;
+    background-color: transparent;
+}
+
+.table tbody tr {
+    background-color: transparent;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(75, 93, 35, 0.15);
+}
+
+/* Force table text colors */
+.table td, .table th, .table td *, .table th * {
+    color: var(--zombie-text) !important;
+}
+
+/* Table links */
+.table a {
+    color: var(--bright-orange) !important;
+    text-decoration: none;
+}
+
+.table a:hover {
+    color: var(--hazard-yellow) !important;
+    text-decoration: underline;
+}
+
+/* Small text in tables */
+.table small {
+    color: var(--zombie-text-dim) !important;
+}
+
+/* Timestamps and code elements in tables */
+.table code, .table .text-muted, .table .small {
+    color: var(--zombie-text-dim) !important;
+}
+
+/* Buttons */
+.btn-primary {
+    background: linear-gradient(135deg, var(--rusty-orange), var(--bright-orange));
+    border-color: var(--rusty-orange);
+    color: var(--zombie-text);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, var(--bright-orange), #f97316);
+    border-color: var(--bright-orange);
+    color: var(--zombie-text);
+    box-shadow: 0 0 12px rgba(234, 88, 12, 0.4);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, var(--rotten-green), var(--bright-green));
+    border-color: var(--rotten-green);
+    color: var(--zombie-text);
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, var(--bright-green), #84cc16);
+    border-color: var(--bright-green);
+    color: var(--zombie-text);
+    box-shadow: 0 0 12px rgba(107, 142, 35, 0.4);
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, var(--hazard-yellow), #fbbf24);
+    border-color: var(--hazard-yellow);
+    color: var(--zombie-bg);
+}
+
+.btn-warning:hover {
+    background: linear-gradient(135deg, #fbbf24, #fcd34d);
+    border-color: #fbbf24;
+    color: var(--zombie-bg);
+    box-shadow: 0 0 12px rgba(217, 119, 6, 0.4);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, var(--blood-red), var(--bright-red));
+    border-color: var(--blood-red);
+    color: var(--zombie-text);
+}
+
+.btn-danger:hover {
+    background: linear-gradient(135deg, var(--bright-red), #ef4444);
+    border-color: var(--bright-red);
+    color: var(--zombie-text);
+    box-shadow: 0 0 12px rgba(220, 38, 38, 0.4);
+}
+
+/* Badges */
+.badge.bg-success {
+    background: var(--bright-green) !important;
+    color: var(--zombie-text) !important;
+}
+
+.badge.bg-warning {
+    background: var(--hazard-yellow) !important;
+    color: var(--zombie-bg) !important;
+}
+
+.badge.bg-primary {
+    background: var(--bright-orange) !important;
+    color: var(--zombie-text) !important;
+}
+
+.badge.bg-danger {
+    background: var(--bright-red) !important;
+    color: var(--zombie-text) !important;
+}
+
+.badge.bg-secondary {
+    background: #404040 !important;
+    color: var(--zombie-text) !important;
+}
+
+/* Alerts */
+.alert-success {
+    background-color: rgba(75, 93, 35, 0.2);
+    border-color: rgba(107, 142, 35, 0.4);
+    color: #d4edda;
+}
+
+.alert-warning {
+    background-color: rgba(217, 119, 6, 0.2);
+    border-color: rgba(217, 119, 6, 0.4);
+    color: #fff3cd;
+}
+
+.alert-danger {
+    background-color: rgba(139, 26, 26, 0.2);
+    border-color: rgba(220, 38, 38, 0.4);
+    color: #f8d7da;
+}
+
+/* Text colors */
+.text-muted {
+    color: var(--zombie-text-dim) !important;
+}
+
+.text-success {
+    color: var(--bright-green) !important;
+}
+
+.text-warning {
+    color: var(--hazard-yellow) !important;
+}
+
+.text-danger {
+    color: var(--bright-red) !important;
+}
+
+/* Footer - Fix the white rectangle */
+footer {
+    background: var(--zombie-bg) !important;
+    border-top: 1px solid var(--border-color);
+    color: var(--zombie-text-dim) !important;
+}
+
+footer small {
+    color: var(--zombie-text-dim) !important;
+}
+
+/* Form controls */
+.form-control {
+    background-color: #222222;
+    border: 1px solid var(--border-color);
+    color: var(--zombie-text);
+}
+
+.form-control:focus {
+    background-color: #2a2a2a;
+    border-color: var(--bright-orange);
+    box-shadow: 0 0 0 0.2rem rgba(234, 88, 12, 0.25);
+    color: var(--zombie-text);
+}
+
+.form-control::placeholder {
+    color: var(--zombie-text-dim);
+}
+
+/* Form labels - Use the old help text brightness */
+.form-label {
+    color: var(--zombie-text) !important;
+    font-weight: 500;
+}
+
+/* Form help text - Use the old label dimmer color */
+.form-text {
+    color: rgba(120, 120, 120, 0.8) !important;
+    font-size: 0.875rem;
+}
+
+/* Small muted text improvements */
+.text-muted small, small.text-muted {
+    color: var(--zombie-text-dim) !important;
+}
+
+/* Generic small text in forms */
+small {
+    color: var(--zombie-text-dim) !important;
+}
+
+/* Modal styling */
+.modal-content {
+    background: var(--zombie-card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--zombie-text);
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-footer {
+    border-top: 1px solid var(--border-color);
+}
+
+/* Spinner colors */
+.spinner-border {
+    border-color: rgba(75, 93, 35, 0.3);
+    border-right-color: var(--bright-green);
+}
+
+/* Fix bright/white text issues */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--zombie-text) !important;
+}
+
+.card-title {
+    color: var(--zombie-text) !important;
+}
+
+.card-text {
+    color: var(--zombie-text) !important;
+}
+
+/* Container and main content areas */
+.container {
+    color: var(--zombie-text);
+}
+
+/* Fix any remaining white backgrounds */
+.bg-light {
+    background: var(--zombie-card-bg) !important;
+    color: var(--zombie-text) !important;
+}
+
+/* Fix light badges */
+.badge.bg-light {
+    background: rgba(75, 93, 35, 0.3) !important;
+    color: var(--zombie-text) !important;
+}
+
+.text-dark {
+    color: var(--zombie-text) !important;
+}
+
+.text-white {
+    color: var(--zombie-text) !important;
+}
+
+/* Input group styling */
+.input-group-text {
+    background-color: rgba(60, 60, 60, 0.8);
+    border: 1px solid var(--border-color);
+    color: var(--zombie-text);
+}
+
+/* Fix any remaining white/bright elements */
+.bg-white {
+    background: var(--zombie-card-bg) !important;
+    color: var(--zombie-text) !important;
+}
+
+.bg-secondary {
+    background: linear-gradient(135deg, #2a2a2a, #404040) !important;
+    color: var(--zombie-text) !important;
+}

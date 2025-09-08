@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}} - ZombieAuth</title>
+    <link href="/vendor/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link href="/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/admin.css" rel="stylesheet">
+    <link href="/css/zombie-theme.css" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <div class="d-flex align-items-center">
+                <a class="navbar-brand me-2" href="/admin">
+                    🧟 ZombieAuth
+                </a>
+                <button class="navbar-toggler me-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+            <!-- Always visible cluster status and user dropdown on mobile/tablet -->
+            <div class="d-flex align-items-center ms-auto d-lg-none">
+                <!-- Cluster Status Indicator -->
+                <div class="nav-link position-relative" id="navClusterStatus" style="padding-right: 0.25rem;">
+                    <div class="d-flex align-items-center">
+                        <div class="spinner-border spinner-border-sm me-2" role="status" id="clusterStatusSpinner">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <div id="clusterStatusContent">
+                            <small class="text-muted">Checking cluster...</small>
+                        </div>
+                    </div>
+                </div>
+                <!-- User Dropdown -->
+                <div class="dropdown">
+                    <a class="nav-link dropdown-toggle text-light text-decoration-none" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle"></i> {{#if oidc_user}}{{oidc_user.username}}{{else}}Admin{{/if}}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        {{#if oidc_user}}
+                        <li><h6 class="dropdown-header">
+                            🔒 Authenticated via OIDC
+                        </h6></li>
+                        <li><span class="dropdown-item-text small">
+                            <strong>Email:</strong> {{oidc_user.email}}<br>
+                            <strong>Roles:</strong> {{join oidc_user.roles ', '}}
+                        </span></li>
+                        <li><hr class="dropdown-divider"></li>
+                        {{/if}}
+                        <li><a class="dropdown-item" href="/admin/logout">
+                            <i class="bi bi-box-arrow-right"></i> Logout
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {{#if isClients}}active{{/if}}" href="/admin/clients">
+                            <i class="bi bi-gear"></i> Clients
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{#if isSessions}}active{{/if}}" href="/admin/sessions">
+                            <i class="bi bi-activity"></i> Sessions
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{#if isUsers}}active{{/if}}" href="/admin/users">
+                            <i class="bi bi-people"></i> Users
+                        </a>
+                    </li>
+                </ul>
+                <!-- Cluster status and user dropdown for larger screens - positioned to the right -->
+                <ul class="navbar-nav d-none d-lg-flex">
+                    <li class="nav-item">
+                        <div class="nav-link position-relative" id="navClusterStatusDesktop" style="padding-right: 0.25rem;">
+                            <div class="d-flex align-items-center">
+                                <div class="spinner-border spinner-border-sm me-2" role="status" id="clusterStatusSpinnerDesktop">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <div id="clusterStatusContentDesktop">
+                                    <small class="text-muted">Checking cluster...</small>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+                <ul class="navbar-nav d-none d-lg-flex">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i> {{#if oidc_user}}{{oidc_user.username}}{{else}}Admin{{/if}}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            {{#if oidc_user}}
+                            <li><h6 class="dropdown-header">
+                                🔒 Authenticated via OIDC
+                            </h6></li>
+                            <li><span class="dropdown-item-text small">
+                                <strong>Email:</strong> {{oidc_user.email}}<br>
+                                <strong>Roles:</strong> {{join oidc_user.roles ', '}}
+                            </span></li>
+                            <li><hr class="dropdown-divider"></li>
+                            {{/if}}
+                            <li><a class="dropdown-item" href="/admin/logout">
+                                <i class="bi bi-box-arrow-right"></i> Logout
+                            </a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        {{#if message}}
+        <div class="alert alert-{{messageType}} alert-dismissible fade show" role="alert">
+            {{message}}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {{/if}}
+
+        {{{body}}}
+    </div>
+
+    <footer class="bg-light text-center text-muted py-3 mt-5">
+        <div class="container">
+            <small>ZombieAuth v0.1.0 - <em>Still authenticating users when everything else is dead.</em></small>
+        </div>
+    </footer>
+
+    <script src="/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="/js/admin.js"></script>
+    <script src="/js/cluster-nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+# CouchDB Cluster Status Service
+# Generated from template - do not edit directly
+
+[Container]
+ContainerName=couchdb-status
+Environment=COUCHDB_ADMIN_PASSWORD=__COUCHDB_ADMIN_PASSWORD__
+Environment=COUCHDB_ADMIN_USER=__COUCHDB_ADMIN_USER__
+Environment=COUCHDB_URL=__COUCHDB_INTERNAL_URL__
+Environment=PORT=80
+ExposePort=80
+Image=zombieauth-cluster-status:latest
+Label=traefik.enable=true
+Label=traefik.http.routers.__INSTANCE_ID__-couchdb-status.rule=Host(`__STATUS_FQDN__`)
+Label=traefik.http.services.__INSTANCE_ID__-couchdb-status.loadbalancer.server.port=80
+Network=__NETWORK_NAME__
+__COUCHDB_DEPENDENCY__
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+Restart=always
+TimeoutStartSec=60
+
+[Unit]
+After=couchdb.service
+Description=CouchDB Cluster Status Service - __INSTANCE_NAME__

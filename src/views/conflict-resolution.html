@@ -1,0 +1,181 @@
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="bi bi-exclamation-triangle text-warning"></i> 
+                    Resolve {{#if (eq entityType 'user')}}User{{/if}}{{#if (eq entityType 'client')}}Client{{/if}}{{#if (eq entityType 'session')}}Session{{/if}} Conflicts
+                </h4>
+                <p class="mb-0 text-muted">
+                    Multiple versions of <strong>{{entityName}}</strong> were found. Please select which version to keep.
+                </p>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="/admin/conflicts/{{entityType}}/{{entityId}}/resolve">
+                    <input type="hidden" name="mergeStrategy" value="keepVersion">
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Conflict Resolution:</strong> Select the version you want to keep. All other conflicting versions will be discarded.
+                    </div>
+                    
+                    <div class="row">
+                        <!-- Current Version -->
+                        <div class="col-md-6 mb-4">
+                            <div class="card border-success">
+                                <div class="card-header bg-success text-white">
+                                    <h5 class="mb-0">
+                                        <input type="radio" name="selectedRevision" value="current" class="form-check-input me-2" id="current-version" checked>
+                                        <label for="current-version">Current Version</label>
+                                    </h5>
+                                    <small>Revision: <code>{{currentVersion.rev}}</code></small>
+                                </div>
+                                <div class="card-body">
+                                    {{#if (eq entityType 'user')}}
+                                        <table class="table table-sm">
+                                            <tr><th>Username:</th><td>{{currentVersion.user.username}}</td></tr>
+                                            <tr><th>Email:</th><td>{{currentVersion.user.email}}</td></tr>
+                                            <tr><th>Name:</th><td>{{currentVersion.user.firstName}} {{currentVersion.user.lastName}}</td></tr>
+                                            <tr><th>Groups:</th><td>{{#each currentVersion.user.groups}}<span class="badge bg-secondary me-1">{{this}}</span>{{/each}}</td></tr>
+                                            <tr><th>Roles:</th><td>{{#each currentVersion.user.roles}}<span class="badge bg-info me-1">{{this}}</span>{{/each}}</td></tr>
+                                            <tr><th>Status:</th><td>{{#if currentVersion.user.enabled}}<span class="badge bg-success">Enabled</span>{{else}}<span class="badge bg-danger">Disabled</span>{{/if}}</td></tr>
+                                            <tr><th>Email Verified:</th><td>{{#if currentVersion.user.emailVerified}}<span class="badge bg-success">Yes</span>{{else}}<span class="badge bg-warning">No</span>{{/if}}</td></tr>
+                                        </table>
+                                    {{/if}}
+                                    
+                                    {{#if (eq entityType 'client')}}
+                                        <table class="table table-sm">
+                                            <tr><th>Name:</th><td>{{currentVersion.client.name}}</td></tr>
+                                            <tr><th>Client ID:</th><td><code>{{currentVersion.client.clientId}}</code></td></tr>
+                                            <tr><th>Type:</th><td>{{#if currentVersion.client.confidential}}<span class="badge bg-primary">Confidential</span>{{else}}<span class="badge bg-info">Public</span>{{/if}}</td></tr>
+                                            <tr><th>Redirect URIs:</th><td>{{#each currentVersion.client.redirectUris}}<div><small><code>{{this}}</code></small></div>{{/each}}</td></tr>
+                                            <tr><th>Scopes:</th><td>{{#each currentVersion.client.scopes}}<span class="badge bg-light text-dark me-1">{{this}}</span>{{/each}}</td></tr>
+                                            <tr><th>Status:</th><td>{{#if currentVersion.client.enabled}}<span class="badge bg-success">Enabled</span>{{else}}<span class="badge bg-danger">Disabled</span>{{/if}}</td></tr>
+                                        </table>
+                                    {{/if}}
+                                    
+                                    {{#if (eq entityType 'session')}}
+                                        <table class="table table-sm">
+                                            <tr><th>User:</th><td>{{currentVersion.session.user.username}} ({{currentVersion.session.user.email}})</td></tr>
+                                            <tr><th>Client ID:</th><td><code>{{currentVersion.session.clientId}}</code></td></tr>
+                                            <tr><th>Scopes:</th><td>{{#each currentVersion.session.scopes}}<span class="badge bg-light text-dark me-1">{{this}}</span>{{/each}}</td></tr>
+                                            <tr><th>Status:</th><td>{{#if currentVersion.session.active}}<span class="badge bg-success">Active</span>{{else}}<span class="badge bg-secondary">Inactive</span>{{/if}}</td></tr>
+                                            <tr><th>Created:</th><td>{{formatDate currentVersion.session.createdAt}}</td></tr>
+                                            <tr><th>Expires:</th><td>{{#if currentVersion.session.expiresAt}}{{formatDate currentVersion.session.expiresAt}}{{else}}Never{{/if}}</td></tr>
+                                        </table>
+                                    {{/if}}
+                                    
+                                    <div class="mt-3">
+                                        <h6>Instance Metadata:</h6>
+                                        <small class="text-muted">
+                                            Created by: <code>{{currentVersion.rawDoc.instanceMetadata.createdBy}}</code><br>
+                                            Last modified by: <code>{{currentVersion.rawDoc.instanceMetadata.lastModifiedBy}}</code><br>
+                                            Last modified: {{formatDate currentVersion.rawDoc.instanceMetadata.lastModifiedAt}}<br>
+                                            Version: {{currentVersion.rawDoc.instanceMetadata.version}}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Conflict Versions -->
+                        {{#each conflictVersions}}
+                        <div class="col-md-6 mb-4">
+                            <div class="card border-warning">
+                                <div class="card-header bg-warning text-dark">
+                                    <h5 class="mb-0">
+                                        <input type="radio" name="selectedRevision" value="{{this.rev}}" class="form-check-input me-2" id="conflict-{{@index}}">
+                                        <label for="conflict-{{@index}}">Conflict Version {{@index}}</label>
+                                    </h5>
+                                    <small>Revision: <code>{{this.rev}}</code></small>
+                                </div>
+                                <div class="card-body">
+                                    {{#if (eq ../entityType 'user')}}
+                                        <table class="table table-sm">
+                                            <tr><th>Username:</th><td>{{this.user.username}}</td></tr>
+                                            <tr><th>Email:</th><td>{{this.user.email}}</td></tr>
+                                            <tr><th>Name:</th><td>{{this.user.firstName}} {{this.user.lastName}}</td></tr>
+                                            <tr><th>Groups:</th><td>{{#each this.user.groups}}<span class="badge bg-secondary me-1">{{this}}</span>{{/each}}</td></tr>
+                                            <tr><th>Roles:</th><td>{{#each this.user.roles}}<span class="badge bg-info me-1">{{this}}</span>{{/each}}</td></tr>
+                                            <tr><th>Status:</th><td>{{#if this.user.enabled}}<span class="badge bg-success">Enabled</span>{{else}}<span class="badge bg-danger">Disabled</span>{{/if}}</td></tr>
+                                            <tr><th>Email Verified:</th><td>{{#if this.user.emailVerified}}<span class="badge bg-success">Yes</span>{{else}}<span class="badge bg-warning">No</span>{{/if}}</td></tr>
+                                        </table>
+                                    {{/if}}
+                                    
+                                    {{#if (eq ../entityType 'client')}}
+                                        <table class="table table-sm">
+                                            <tr><th>Name:</th><td>{{this.client.name}}</td></tr>
+                                            <tr><th>Client ID:</th><td><code>{{this.client.clientId}}</code></td></tr>
+                                            <tr><th>Type:</th><td>{{#if this.client.confidential}}<span class="badge bg-primary">Confidential</span>{{else}}<span class="badge bg-info">Public</span>{{/if}}</td></tr>
+                                            <tr><th>Redirect URIs:</th><td>{{#each this.client.redirectUris}}<div><small><code>{{this}}</code></small></div>{{/each}}</td></tr>
+                                            <tr><th>Scopes:</th><td>{{#each this.client.scopes}}<span class="badge bg-light text-dark me-1">{{this}}</span>{{/each}}</td></tr>
+                                            <tr><th>Status:</th><td>{{#if this.client.enabled}}<span class="badge bg-success">Enabled</span>{{else}}<span class="badge bg-danger">Disabled</span>{{/if}}</td></tr>
+                                        </table>
+                                    {{/if}}
+                                    
+                                    {{#if (eq ../entityType 'session')}}
+                                        <table class="table table-sm">
+                                            <tr><th>User:</th><td>{{this.session.user.username}} ({{this.session.user.email}})</td></tr>
+                                            <tr><th>Client ID:</th><td><code>{{this.session.clientId}}</code></td></tr>
+                                            <tr><th>Scopes:</th><td>{{#each this.session.scopes}}<span class="badge bg-light text-dark me-1">{{this}}</span>{{/each}}</td></tr>
+                                            <tr><th>Status:</th><td>{{#if this.session.active}}<span class="badge bg-success">Active</span>{{else}}<span class="badge bg-secondary">Inactive</span>{{/if}}</td></tr>
+                                            <tr><th>Created:</th><td>{{formatDate this.session.createdAt}}</td></tr>
+                                            <tr><th>Expires:</th><td>{{#if this.session.expiresAt}}{{formatDate this.session.expiresAt}}{{else}}Never{{/if}}</td></tr>
+                                        </table>
+                                    {{/if}}
+                                    
+                                    <div class="mt-3">
+                                        <h6>Instance Metadata:</h6>
+                                        <small class="text-muted">
+                                            Created by: <code>{{this.rawDoc.instanceMetadata.createdBy}}</code><br>
+                                            Last modified by: <code>{{this.rawDoc.instanceMetadata.lastModifiedBy}}</code><br>
+                                            Last modified: {{formatDate this.rawDoc.instanceMetadata.lastModifiedAt}}<br>
+                                            Version: {{this.rawDoc.instanceMetadata.version}}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {{/each}}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <a href="/admin/{{#if (eq entityType 'user')}}users{{/if}}{{#if (eq entityType 'client')}}clients{{/if}}{{#if (eq entityType 'session')}}sessions{{/if}}" class="btn btn-secondary">
+                                    <i class="bi bi-arrow-left"></i> Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle"></i> Resolve Conflict
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Highlight differences between versions
+document.addEventListener('DOMContentLoaded', function() {
+    // You could add JavaScript here to highlight differences between versions
+    // For now, we'll keep it simple
+    
+    // Add confirmation dialog for resolution
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const selectedRadio = document.querySelector('input[name="selectedRevision"]:checked');
+        if (!selectedRadio) {
+            e.preventDefault();
+            alert('Please select a version to keep.');
+            return;
+        }
+        
+        const versionLabel = selectedRadio.closest('.card-header').querySelector('label').textContent;
+        if (!confirm(`Are you sure you want to keep "${versionLabel}" and discard all other versions?\n\nThis action cannot be undone.`)) {
+            e.preventDefault();
+        }
+    });
+});
+</script>

@@ -1,0 +1,161 @@
+/* Custom Admin Styles */
+.navbar-brand {
+    font-weight: bold;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    transition: box-shadow 0.15s ease-in-out;
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.badge {
+    font-size: 0.75rem;
+}
+
+.btn-group-sm .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+.text-truncate {
+    max-width: 200px;
+}
+
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* Stats cards */
+.bg-primary { background-color: #007bff !important; }
+.bg-success { background-color: #28a745 !important; }
+.bg-info { background-color: #17a2b8 !important; }
+.bg-warning { background-color: #ffc107 !important; }
+
+/* Modal improvements */
+.modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Form improvements */
+.form-label {
+    font-weight: 500;
+    color: #495057;
+}
+
+.form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Table improvements */
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.table-secondary {
+    background-color: rgba(108, 117, 125, 0.1);
+}
+
+/* Button improvements */
+.btn {
+    border-radius: 0.375rem;
+    font-weight: 500;
+}
+
+.btn-group .btn {
+    border-radius: 0;
+}
+
+.btn-group .btn:first-child {
+    border-top-left-radius: 0.375rem;
+    border-bottom-left-radius: 0.375rem;
+}
+
+.btn-group .btn:last-child {
+    border-top-right-radius: 0.375rem;
+    border-bottom-right-radius: 0.375rem;
+}
+
+/* Alert improvements */
+.alert {
+    border: none;
+    border-radius: 0.5rem;
+}
+
+/* Footer */
+footer {
+    margin-top: auto;
+}
+
+/* Cluster status styling */
+.cluster-status-container {
+    position: relative;
+    display: inline-block;
+}
+
+.cluster-status-basic {
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.cluster-status-basic:hover {
+    opacity: 0.8;
+}
+
+.cluster-status-details {
+    min-width: 150px;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    background-color: rgba(52, 58, 64, 0.95) !important;
+    backdrop-filter: blur(4px);
+}
+
+/* Responsive navbar improvements */
+@media (max-width: 991.98px) {
+    /* Adjust cluster status display on small screens */
+    #navClusterStatus {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+    
+    #clusterStatusContent {
+        font-size: 0.75rem;
+    }
+    
+    /* Make dropdown menu more compact on mobile */
+    .dropdown-menu {
+        font-size: 0.9rem;
+    }
+    
+    /* Adjust tooltip position on mobile */
+    .cluster-status-details {
+        right: -20px !important;
+        min-width: 120px;
+        font-size: 0.7rem !important;
+    }
+}
+
+/* Always visible elements styling */
+.navbar .d-flex.align-items-center .nav-link {
+    color: rgba(255, 255, 255, 0.85) !important;
+    padding: 0.5rem 0.75rem;
+}
+
+.navbar .d-flex.align-items-center .nav-link:hover {
+    color: rgba(255, 255, 255, 1) !important;
+}

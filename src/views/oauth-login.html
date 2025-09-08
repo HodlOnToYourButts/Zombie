@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZombieAuth - OAuth2 Login</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link href="/vendor/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link href="/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/admin.css" rel="stylesheet">
+    <link href="/css/zombie-theme.css" rel="stylesheet">
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .login-container {
+            background: rgba(40, 40, 40, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(139, 69, 19, 0.3);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(139, 69, 19, 0.1);
+            padding: 3rem;
+            width: 100%;
+            max-width: 450px;
+        }
+        .brand {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .brand h1 {
+            color: #e0e0e0;
+            font-weight: 300;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .brand .tagline {
+            color: rgba(224, 224, 224, 0.7);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        .oauth-info {
+            background: rgba(85, 107, 47, 0.15);
+            border-left: 4px solid #8b4513;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 2rem;
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+            transform: translateY(0);
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        .oauth-info.fade-out {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        .oauth-info h6 {
+            color: #e0e0e0;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        .oauth-info p {
+            color: rgba(224, 224, 224, 0.8);
+            font-size: 0.85rem;
+            margin-bottom: 0;
+        }
+        .form-control {
+            background-color: rgba(60, 60, 60, 0.8);
+            border: 2px solid rgba(139, 69, 19, 0.3);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            color: #e0e0e0;
+        }
+        .form-control:focus {
+            background-color: rgba(70, 70, 70, 0.9);
+            border-color: #8b4513;
+            box-shadow: 0 0 0 0.2rem rgba(139, 69, 19, 0.25);
+            color: #e0e0e0;
+        }
+        .form-control::placeholder {
+            color: rgba(224, 224, 224, 0.6);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: transform 0.2s;
+            color: #e0e0e0;
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            background: linear-gradient(135deg, #a0522d 0%, #cd853f 100%);
+            box-shadow: 0 5px 15px rgba(139, 69, 19, 0.4);
+            color: #ffffff;
+        }
+        .client-info {
+            background: rgba(40, 40, 40, 0.8);
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+            color: #e0e0e0;
+            border: 1px solid rgba(139, 69, 19, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="brand">
+            <h1>🧟 ZombieAuth</h1>
+        </div>
+
+        <div class="oauth-info" id="authRequest">
+            <h6><i class="bi bi-info-circle"></i> Authorization Request</h6>
+            <p>An application is requesting access to your account. Please sign in to continue.</p>
+        </div>
+
+
+        {{#if error}}
+        <div class="alert alert-danger" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            {{error}}
+        </div>
+        {{/if}}
+
+        {{#if success}}
+        <div class="alert alert-success" role="alert">
+            <i class="bi bi-check-circle-fill"></i>
+            {{success}}
+        </div>
+        {{/if}}
+
+        <form method="GET" action="{{authUrl}}">
+            <!-- Preserve OAuth2 parameters -->
+            <input type="hidden" name="response_type" value="{{response_type}}">
+            <input type="hidden" name="client_id" value="{{client_id}}">
+            <input type="hidden" name="redirect_uri" value="{{redirect_uri}}">
+            <input type="hidden" name="scope" value="{{scope}}">
+            <input type="hidden" name="state" value="{{state}}">
+            {{#if nonce}}
+            <input type="hidden" name="nonce" value="{{nonce}}">
+            {{/if}}
+
+            <div class="mb-3">
+                <label for="username" class="form-label">
+                    <i class="bi bi-person-fill"></i> Username
+                </label>
+                <input type="text" class="form-control" id="username" name="username" required autofocus>
+            </div>
+            
+            <div class="mb-4">
+                <label for="password" class="form-label">
+                    <i class="bi bi-lock-fill"></i> Password
+                </label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    Authorize Access
+                </button>
+            </div>
+        </form>
+
+        <div class="text-center mt-3">
+            <small class="text-muted">
+                By signing in, you authorize this application to access your account information.
+            </small>
+        </div>
+        
+        <div class="text-center mt-3">
+            <small class="text-muted">
+                Don't have an account? 
+                <a href="/register" class="text-decoration-none">Sign up here</a>
+            </small>
+        </div>
+    </div>
+
+    <script src="/js/auth-fadeout.js"></script>
+</body>
+</html>

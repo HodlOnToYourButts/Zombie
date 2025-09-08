@@ -1,0 +1,180 @@
+<div class="row">
+    <div class="col-md-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+                <i class="bi bi-person-{{#if user}}gear{{else}}plus{{/if}}"></i> 
+                {{#if user}}Edit User{{else}}Add User{{/if}}
+            </h2>
+            <a href="/admin/users" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Users
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <form method="POST" action="/admin/users{{#if user}}/{{encodeURIComponent user.id}}{{/if}}">
+                    {{#if user}}
+                    <input type="hidden" name="_method" value="PUT">
+                    {{/if}}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Username *</label>
+                                <input type="text" class="form-control" id="username" name="username" 
+                                       value="{{user.username}}" required {{#if user}}readonly{{/if}}>
+                                <div class="form-text">
+                                    {{#if user}}Username cannot be changed after creation{{else}}Used for login authentication{{/if}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email *</label>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       value="{{user.email}}" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="firstName" class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="firstName" name="firstName" 
+                                       value="{{user.firstName}}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="lastName" class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="lastName" name="lastName" 
+                                       value="{{user.lastName}}">
+                            </div>
+                        </div>
+                    </div>
+
+                    {{#unless user}}
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password *</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                        <div class="form-text">Minimum 8 characters recommended</div>
+                    </div>
+                    {{/unless}}
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="groups" class="form-label">Groups</label>
+                                <input type="text" class="form-control" id="groups" name="groups" 
+                                       value="{{join user.groups ', '}}" placeholder="admin, users, developers">
+                                <div class="form-text">Comma-separated list of groups</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="roles" class="form-label">Roles</label>
+                                <input type="text" class="form-control" id="roles" name="roles" 
+                                       value="{{join user.roles ', '}}" placeholder="administrator, moderator">
+                                <div class="form-text">Comma-separated list of roles</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="enabled" name="enabled" 
+                                           {{#if user.enabled}}checked{{else}}{{#unless user}}checked{{/unless}}{{/if}}>
+                                    <label class="form-check-label" for="enabled">
+                                        Account Enabled
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="emailVerified" name="emailVerified" 
+                                           {{#if user.emailVerified}}checked{{/if}}>
+                                    <label class="form-check-label" for="emailVerified">
+                                        Email Verified
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg"></i> 
+                            {{#if user}}Update User{{else}}Create User{{/if}}
+                        </button>
+                        <a href="/admin/users" class="btn btn-secondary">Cancel</a>
+                        {{#if user}}
+                        <button type="button" class="btn btn-warning ms-auto" data-action="reset-password" data-user-id="{{user.id}}">
+                            <i class="bi bi-key"></i> Reset Password
+                        </button>
+                        {{/if}}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    {{#if user}}
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">User Information</h6>
+            </div>
+            <div class="card-body">
+                <dl class="row small">
+                    <dt class="col-sm-5">User ID:</dt>
+                    <dd class="col-sm-7"><code>{{user.id}}</code></dd>
+                    
+                    <dt class="col-sm-5">Created:</dt>
+                    <dd class="col-sm-7">{{formatDate user.createdAt}}</dd>
+                    
+                    <dt class="col-sm-5">Updated:</dt>
+                    <dd class="col-sm-7">{{formatDate user.updatedAt}}</dd>
+                    
+                    <dt class="col-sm-5">Last Login:</dt>
+                    <dd class="col-sm-7">
+                        {{#if user.lastLogin}}
+                            {{formatDate user.lastLogin}}
+                        {{else}}
+                            Never
+                        {{/if}}
+                    </dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Actions</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-info btn-sm" data-action="show-user-sessions" data-user-id="{{user.id}}">
+                        <i class="bi bi-activity"></i> View Sessions
+                    </button>
+                    <button class="btn btn-warning btn-sm" data-action="invalidate-user-sessions" data-user-id="{{user.id}}">
+                        <i class="bi bi-x-circle"></i> Invalidate All Sessions
+                    </button>
+                    {{#unless (eq user.username ../oidc_user.username)}}
+                    <hr>
+                    <button class="btn btn-danger btn-sm" data-action="delete-user" data-user-id="{{user.id}}">
+                        <i class="bi bi-trash"></i> Delete User
+                    </button>
+                    {{/unless}}
+                </div>
+            </div>
+        </div>
+    </div>
+    {{/if}}
+</div>
+
+<script src="/js/admin-user-form.js"></script>

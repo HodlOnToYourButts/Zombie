@@ -1,0 +1,25 @@
+# CouchDB Instance for ZombieAuth
+# Generated from template - do not edit directly
+
+[Container]
+ContainerName=couchdb
+Environment=COUCHDB_PASSWORD=__COUCHDB_ADMIN_PASSWORD__
+Environment=COUCHDB_SECRET=__SHARED_COUCHDB_SECRET__
+Environment=COUCHDB_USER=__COUCHDB_ADMIN_USER__
+Environment=ERL_FLAGS=-setcookie __SHARED_COUCHDB_COOKIE__ -name couchdb@__COUCHDB_NODE_NAME__ -kernel inet_dist_listen_min 9100 -kernel inet_dist_listen_max 9200
+ExposePort=5984
+Image=couchdb:3.3
+Network=__NETWORK_NAME__
+User=5984:5984
+Volume=couchdb-data:/opt/couchdb/data
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+Restart=always
+TimeoutStartSec=300
+
+[Unit]
+Description=CouchDB Instance - __INSTANCE_NAME__
+Documentation=https://docs.couchdb.org/

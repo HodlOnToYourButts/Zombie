@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - ZombieAuth</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link href="/vendor/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link href="/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/admin.css" rel="stylesheet">
+    <link href="/css/zombie-theme.css" rel="stylesheet">
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        .login-card {
+            background: rgba(40, 40, 40, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(139, 69, 19, 0.3);
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(139, 69, 19, 0.1);
+        }
+        .logo {
+            font-size: 3rem;
+            color: #8b4513;
+            text-shadow: 0 0 10px rgba(139, 69, 19, 0.5);
+        }
+        .form-control {
+            background-color: rgba(60, 60, 60, 0.8);
+            border: 1px solid rgba(139, 69, 19, 0.3);
+            color: #e0e0e0;
+        }
+        .form-control:focus {
+            background-color: rgba(70, 70, 70, 0.9);
+            border-color: #8b4513;
+            box-shadow: 0 0 0 0.2rem rgba(139, 69, 19, 0.25);
+            color: #e0e0e0;
+        }
+        .btn-primary {
+            background-color: #8b4513;
+            border-color: #8b4513;
+            color: #e0e0e0;
+        }
+        .btn-primary:hover {
+            background-color: #a0522d;
+            border-color: #a0522d;
+            color: #ffffff;
+        }
+        .text-muted {
+            color: rgba(224, 224, 224, 0.7) !important;
+        }
+        h2 {
+            color: #e0e0e0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5">
+                <div class="card login-card">
+                    <div class="card-body p-5">
+                        <div class="text-center mb-4">
+                            <span class="logo">🧟</span>
+                            <h2 class="mt-2">ZombieAuth Admin</h2>
+                            <p class="text-muted">Sign in to manage users and sessions</p>
+                        </div>
+
+                        {{#if error}}
+                        <div class="alert alert-danger" role="alert">
+                            <i class="bi bi-exclamation-triangle"></i> {{error}}
+                        </div>
+                        {{/if}}
+
+                        <form method="POST" action="/admin/login">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Username</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                    <input type="text" class="form-control" id="username" name="username" 
+                                           value="{{username}}" required autofocus>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="password" class="form-label">Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                    <input type="password" class="form-control" id="password" name="password" required>
+                                </div>
+                            </div>
+
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-box-arrow-in-right"></i> Sign In
+                                </button>
+                            </div>
+                        </form>
+
+                        <div class="text-center mt-4">
+                            <small class="text-muted">
+                                Only users with admin role can access this interface
+                            </small>
+                        </div>
+                        
+                        <div class="text-center mt-3">
+                            <small class="text-muted">
+                                Don't have an account? 
+                                <a href="/register" class="text-decoration-none">Sign up here</a>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+</body>
+</html>

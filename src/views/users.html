@@ -1,0 +1,180 @@
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h6>Active Users</h6>
+                <h3>{{userStats.activeUsers}}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <h6>Unverified Users</h6>
+                <h3>{{userStats.unverifiedUsers}}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h6>Disabled Users</h6>
+                <h3>{{userStats.disabledUsers}}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <h6>Total Users</h6>
+                <h3>{{userStats.totalUsers}}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0"><i class="bi bi-people"></i> User Management</h4>
+        <a href="/admin/users/new" class="btn btn-primary">
+            <i class="bi bi-person-plus"></i> Add User
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Name</th>
+                        <th>Groups</th>
+                        <th>Roles</th>
+                        <th>Status</th>
+                        <th>Sync</th>
+                        <th>Last Login</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each users}}
+                    <tr>
+                        <td>
+                            <strong>{{this.username}}</strong>
+                        </td>
+                        <td>{{this.email}}</td>
+                        <td>{{this.firstName}} {{this.lastName}}</td>
+                        <td>
+                            {{#each this.groups}}
+                            <span class="badge bg-secondary me-1">{{this}}</span>
+                            {{/each}}
+                        </td>
+                        <td>
+                            {{#each this.roles}}
+                            <span class="badge bg-info me-1">{{this}}</span>
+                            {{/each}}
+                        </td>
+                        <td>
+                            {{#if this.enabled}}
+                                {{#if this.emailVerified}}
+                                <span class="badge bg-success">Active</span>
+                                {{else}}
+                                <span class="badge bg-warning">Unverified</span>
+                                {{/if}}
+                            {{else}}
+                            <span class="badge bg-primary">Disabled</span>
+                            {{/if}}
+                        </td>
+                        <td>
+                            {{#if (eq this.syncStatus "synced")}}
+                            <span class="badge bg-success" title="In sync with cluster">
+                                <i class="bi bi-check-circle"></i> Synced
+                            </span>
+                            {{else if (eq this.syncStatus "isolated")}}
+                            <span class="badge bg-warning text-dark" title="Modified while cluster nodes were unreachable">
+                                <i class="bi bi-cloud-slash"></i> Isolated
+                            </span>
+                            {{else if (eq this.syncStatus "conflict")}}
+                            <a href="/admin/conflicts/user/{{this.id}}" class="badge bg-primary text-decoration-none" title="Has conflicts - click to view details">
+                                <i class="bi bi-exclamation-triangle"></i> Conflict
+                            </a>
+                            {{else if (eq this.syncStatus "error")}}
+                            <span class="badge bg-danger" title="Sync error - check logs">
+                                <i class="bi bi-x-circle"></i> Error
+                            </span>
+                            {{else}}
+                            <span class="badge bg-secondary" title="Sync status unknown">
+                                <i class="bi bi-question-circle"></i> Unknown
+                            </span>
+                            {{/if}}
+                        </td>
+                        <td class="text-muted">
+                            {{#if this.lastLogin}}
+                                {{formatDate this.lastLogin}}
+                            {{else}}
+                                Never
+                            {{/if}}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="/admin/users/{{this.id}}" class="btn btn-outline-primary" title="View">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="/admin/users/{{this.id}}/edit" class="btn btn-outline-warning" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <button class="btn btn-outline-info" data-action="show-sessions" data-user-id="{{this.id}}" title="Sessions">
+                                    <i class="bi bi-activity"></i>
+                                </button>
+                                {{#if this.enabled}}
+                                {{#unless (eq this.username ../oidc_user.username)}}
+                                <button class="btn btn-outline-secondary" data-action="toggle-user" data-user-id="{{this.id}}" data-enabled="false" title="Disable">
+                                    <i class="bi bi-person-x"></i>
+                                </button>
+                                {{/unless}}
+                                {{else}}
+                                <button class="btn btn-outline-success" data-action="toggle-user" data-user-id="{{this.id}}" data-enabled="true" title="Enable">
+                                    <i class="bi bi-person-check"></i>
+                                </button>
+                                {{/if}}
+                                {{#unless (eq this.username ../oidc_user.username)}}
+                                <button class="btn btn-outline-danger" data-action="delete-user" data-user-id="{{this.id}}" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                {{/unless}}
+                            </div>
+                        </td>
+                    </tr>
+                    {{else}}
+                    <tr>
+                        <td colspan="9" class="text-center py-4 text-muted">
+                            No users found. <a href="/admin/users/new">Create the first user</a>
+                        </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- User Sessions Modal -->
+<div class="modal fade" id="userSessionsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">User Sessions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="userSessionsContent">
+                    <div class="text-center py-3">
+                        <div class="spinner-border" role="status"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/admin-users.js"></script>

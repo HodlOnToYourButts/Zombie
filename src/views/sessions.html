@@ -1,0 +1,178 @@
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h6>Active Sessions</h6>
+                <h3>{{stats.activeSessions}}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <h6>Expired Sessions</h6>
+                <h3>{{stats.expiredSessions}}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h6>Inactive Sessions</h6>
+                <h3>{{stats.inactiveSessions}}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <h6>Total Sessions</h6>
+                <h3>{{stats.totalSessions}}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0"><i class="bi bi-activity"></i> Session Management</h4>
+        <div class="btn-group">
+            <button class="btn btn-warning" data-action="clear-inactive-sessions">
+                <i class="bi bi-trash"></i> Clear Inactive
+            </button>
+            <button class="btn btn-danger" data-action="clear-all-sessions">
+                <i class="bi bi-x-circle"></i> Clear All
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Client ID</th>
+                        <th>Scopes</th>
+                        <th>Status</th>
+                        <th>Sync</th>
+                        <th>Created</th>
+                        <th>Last Accessed</th>
+                        <th>Expires</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each sessions}}
+                    <tr>
+                        <td>
+                            <strong>{{this.user.username}}</strong>
+                            <br>
+                            <small class="text-muted">{{this.user.email}}</small>
+                        </td>
+                        <td><code>{{this.clientId}}</code></td>
+                        <td>
+                            {{#each this.scopes}}
+                            <span class="badge bg-light text-dark me-1">{{this}}</span>
+                            {{/each}}
+                        </td>
+                        <td>
+                            {{#if this.active}}
+                                {{#if this.isExpired}}
+                                <span class="badge bg-warning">Expired</span>
+                                {{else}}
+                                <span class="badge bg-success">Active</span>
+                                {{/if}}
+                            {{else}}
+                            <span class="badge bg-primary">Inactive</span>
+                            {{/if}}
+                        </td>
+                        <td>
+                            {{#if (eq this.syncStatus "synced")}}
+                            <span class="badge bg-success" title="In sync with cluster">
+                                <i class="bi bi-check-circle"></i> Synced
+                            </span>
+                            {{else if (eq this.syncStatus "isolated")}}
+                            <span class="badge bg-warning text-dark" title="Modified while cluster nodes were unreachable">
+                                <i class="bi bi-cloud-slash"></i> Isolated
+                            </span>
+                            {{else if (eq this.syncStatus "conflict")}}
+                            <a href="/admin/conflicts/session/{{this.id}}" class="badge bg-primary text-decoration-none" title="Has conflicts - click to view details">
+                                <i class="bi bi-exclamation-triangle"></i> Conflict
+                            </a>
+                            {{else if (eq this.syncStatus "error")}}
+                            <span class="badge bg-danger" title="Sync error - check logs">
+                                <i class="bi bi-x-circle"></i> Error
+                            </span>
+                            {{else}}
+                            <span class="badge bg-secondary" title="Sync status unknown">
+                                <i class="bi bi-question-circle"></i> Unknown
+                            </span>
+                            {{/if}}
+                        </td>
+                        <td class="text-muted">
+                            {{formatDate this.createdAt}}
+                        </td>
+                        <td class="text-muted">
+                            {{#if this.lastAccessedAt}}
+                                {{formatDate this.lastAccessedAt}}
+                            {{else}}
+                                Never
+                            {{/if}}
+                        </td>
+                        <td class="text-muted">
+                            {{#if this.expiresAt}}
+                                {{formatDate this.expiresAt}}
+                            {{else}}
+                                No expiry
+                            {{/if}}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-info" data-action="view-session-details" data-session-id="{{this.id}}" title="View Details">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                {{#if this.active}}
+                                <button class="btn btn-outline-warning" data-action="invalidate-session" data-session-id="{{this.id}}" title="Invalidate">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                                {{/if}}
+                                <button class="btn btn-outline-danger" data-action="delete-session" data-session-id="{{this.id}}" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {{else}}
+                    <tr>
+                        <td colspan="9" class="text-center py-4 text-muted">
+                            No sessions found
+                        </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Sessions management page -->
+<script src="/js/admin-sessions.js"></script>
+
+<!-- Session Details Modal -->
+<div class="modal fade" id="sessionDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Session Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="sessionDetailsContent">
+                    <div class="text-center py-3">
+                        <div class="spinner-border" role="status"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

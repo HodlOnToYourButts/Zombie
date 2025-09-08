@@ -1,0 +1,153 @@
+<div class="row">
+    <div class="col-md-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+                <i class="bi bi-gear-{{#if client}}fill{{else}}plus{{/if}}"></i> 
+                {{#if client}}Edit Client{{else}}Add Client{{/if}}
+            </h2>
+            <a href="/admin/clients" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Clients
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <form method="POST" action="/admin/clients{{#if client}}/{{encodeURIComponent client.id}}{{/if}}">
+                    {{#if client}}
+                    <input type="hidden" name="_method" value="PUT">
+                    {{/if}}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Client Name *</label>
+                                <input type="text" class="form-control" id="name" name="name" 
+                                       value="{{client.name}}" required>
+                                <div class="form-text">Friendly name for this OIDC client</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="confidential" class="form-label">Client Type</label>
+                                <select class="form-select" id="confidential" name="confidential">
+                                    <option value="on" {{#if client.confidential}}selected{{/if}}>Confidential (Server-side apps)</option>
+                                    <option value="off" {{#unless client.confidential}}{{#unless client}}{{else}}selected{{/unless}}{{/unless}}>Public (Single-page apps, mobile)</option>
+                                </select>
+                                <div class="form-text">Confidential clients can securely store secrets</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="2">{{client.description}}</textarea>
+                        <div class="form-text">Optional description of this client's purpose</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="redirectUris" class="form-label">Redirect URIs *</label>
+                        <textarea class="form-control" id="redirectUris" name="redirectUris" rows="3" required>{{#each client.redirectUris}}{{this}}
+{{/each}}</textarea>
+                        <div class="form-text">One URI per line. These are the allowed callback URLs for this client.</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="scopes" class="form-label">Allowed Scopes</label>
+                                <input type="text" class="form-control" id="scopes" name="scopes" 
+                                       value="{{join client.scopes ', '}}" placeholder="openid, profile, email">
+                                <div class="form-text">Comma-separated list of OAuth2 scopes</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="grantTypes" class="form-label">Grant Types</label>
+                                <input type="text" class="form-control" id="grantTypes" name="grantTypes" 
+                                       value="{{join client.grantTypes ', '}}" placeholder="authorization_code, refresh_token">
+                                <div class="form-text">Comma-separated list of allowed grant types</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="responseTypes" class="form-label">Response Types</label>
+                        <input type="text" class="form-control" id="responseTypes" name="responseTypes" 
+                               value="{{join client.responseTypes ', '}}" placeholder="code">
+                        <div class="form-text">Comma-separated list of allowed response types</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="enabled" name="enabled" 
+                                   {{#if client.enabled}}checked{{else}}{{#unless client}}checked{{/unless}}{{/if}}>
+                            <label class="form-check-label" for="enabled">
+                                Client Enabled
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg"></i> 
+                            {{#if client}}Update Client{{else}}Create Client{{/if}}
+                        </button>
+                        <a href="/admin/clients" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    {{#if client}}
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Client Credentials</h6>
+            </div>
+            <div class="card-body">
+                <dl class="row small">
+                    <dt class="col-sm-4">Client ID:</dt>
+                    <dd class="col-sm-8"><code>{{client.clientId}}</code></dd>
+                    
+                    <dt class="col-sm-4">Client Secret:</dt>
+                    <dd class="col-sm-8">
+                        <code id="clientSecret" style="display: none;">{{clientSecret}}</code>
+                        <code id="maskedSecret">••••••••••••••••</code>
+                        <button type="button" class="btn btn-sm btn-outline-secondary ms-1" data-action="toggle-secret">
+                            <i class="bi bi-eye" id="toggleIcon"></i>
+                        </button>
+                    </dd>
+                    
+                    <dt class="col-sm-4">Created:</dt>
+                    <dd class="col-sm-8">{{formatDate client.createdAt}}</dd>
+                    
+                    <dt class="col-sm-4">Updated:</dt>
+                    <dd class="col-sm-8">{{formatDate client.updatedAt}}</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Actions</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-warning btn-sm" data-action="regenerate-secret" data-client-id="{{client.id}}">
+                        <i class="bi bi-arrow-clockwise"></i> Regenerate Secret
+                    </button>
+                    {{#unless (eq client.clientId "zombieauth")}}
+                    <hr>
+                    <button class="btn btn-danger btn-sm" data-action="delete-client" data-client-id="{{client.id}}">
+                        <i class="bi bi-trash"></i> Delete Client
+                    </button>
+                    {{/unless}}
+                </div>
+            </div>
+        </div>
+    </div>
+    {{/if}}
+</div>
+
+<script src="/js/admin-client-form.js"></script>

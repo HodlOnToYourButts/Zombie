@@ -1,0 +1,192 @@
+{{#if message}}
+<div class="alert alert-{{messageType}} alert-dismissible fade show">
+    {{message}}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{{/if}}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-person-circle"></i> User Details
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <dl class="row">
+                            <dt class="col-sm-4">Username:</dt>
+                            <dd class="col-sm-8">
+                                <code>{{user.username}}</code>
+                            </dd>
+                            
+                            <dt class="col-sm-4">Email:</dt>
+                            <dd class="col-sm-8">{{user.email}}</dd>
+                            
+                            <dt class="col-sm-4">Name:</dt>
+                            <dd class="col-sm-8">
+                                {{#if user.firstName}}{{user.firstName}}{{/if}}
+                                {{#if user.lastName}}{{user.lastName}}{{/if}}
+                                {{#unless user.firstName}}{{#unless user.lastName}}<em class="text-muted">Not set</em>{{/unless}}{{/unless}}
+                            </dd>
+                            
+                            <dt class="col-sm-4">Status:</dt>
+                            <dd class="col-sm-8">
+                                {{#if user.enabled}}
+                                <span class="badge bg-success">Active</span>
+                                {{else}}
+                                <span class="badge bg-secondary">Disabled</span>
+                                {{/if}}
+                                {{#if user.emailVerified}}
+                                <span class="badge bg-info">Email Verified</span>
+                                {{else}}
+                                <span class="badge bg-warning">Email Not Verified</span>
+                                {{/if}}
+                            </dd>
+                        </dl>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <dl class="row">
+                            <dt class="col-sm-4">User ID:</dt>
+                            <dd class="col-sm-8">
+                                <small class="text-muted font-monospace">{{user.id}}</small>
+                            </dd>
+                            
+                            <dt class="col-sm-4">Created:</dt>
+                            <dd class="col-sm-8">
+                                {{#if user.createdAt}}
+                                {{formatDate user.createdAt}}
+                                {{else}}
+                                <em class="text-muted">Unknown</em>
+                                {{/if}}
+                            </dd>
+                            
+                            <dt class="col-sm-4">Last Login:</dt>
+                            <dd class="col-sm-8">
+                                {{#if user.lastLogin}}
+                                {{formatDate user.lastLogin}}
+                                {{else}}
+                                <em class="text-muted">Never</em>
+                                {{/if}}
+                            </dd>
+                            
+                            <dt class="col-sm-4">Groups:</dt>
+                            <dd class="col-sm-8">
+                                {{#if user.groups}}
+                                {{#each user.groups}}
+                                <span class="badge bg-primary me-1">{{this}}</span>
+                                {{/each}}
+                                {{else}}
+                                <em class="text-muted">None</em>
+                                {{/if}}
+                            </dd>
+                            
+                            <dt class="col-sm-4">Roles:</dt>
+                            <dd class="col-sm-8">
+                                {{#if user.roles}}
+                                {{#each user.roles}}
+                                <span class="badge bg-success me-1">{{this}}</span>
+                                {{/each}}
+                                {{else}}
+                                <em class="text-muted">None</em>
+                                {{/if}}
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <div class="btn-group">
+                        <a href="/admin/users/{{user.id}}/edit" class="btn btn-warning">
+                            <i class="bi bi-pencil"></i> Edit User
+                        </a>
+                        {{#if user.enabled}}
+                        {{#unless (eq user.username oidc_user.username)}}
+                        <button class="btn btn-secondary" data-action="toggle-user" data-user-id="{{user.id}}" data-enabled="false">
+                            <i class="bi bi-person-x"></i> Disable User
+                        </button>
+                        {{/unless}}
+                        {{else}}
+                        <button class="btn btn-success" data-action="toggle-user" data-user-id="{{user.id}}" data-enabled="true">
+                            <i class="bi bi-person-check"></i> Enable User
+                        </button>
+                        {{/if}}
+                        <button class="btn btn-info" data-action="reset-password" data-user-id="{{user.id}}">
+                            <i class="bi bi-key"></i> Reset Password
+                        </button>
+                        {{#unless (eq user.username oidc_user.username)}}
+                        <button class="btn btn-danger" data-action="delete-user" data-user-id="{{user.id}}">
+                            <i class="bi bi-trash"></i> Delete User
+                        </button>
+                        {{/unless}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-activity"></i> Active Sessions
+                </h5>
+            </div>
+            <div class="card-body">
+                {{#if sessions}}
+                <div class="list-group list-group-flush">
+                    {{#each sessions}}
+                    <div class="list-group-item px-0">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="small">
+                                <div class="text-muted">Client: {{this.clientId}}</div>
+                                <div class="text-muted">Created: {{formatDate this.createdAt}}</div>
+                                {{#if this.expiresAt}}
+                                <div class="text-muted">Expires: {{formatDate this.expiresAt}}</div>
+                                {{/if}}
+                            </div>
+                            <div>
+                                {{#if this.active}}
+                                    {{#if this.isExpired}}
+                                    <span class="badge bg-warning">Expired</span>
+                                    {{else}}
+                                    <span class="badge bg-success">Active</span>
+                                    {{/if}}
+                                {{else}}
+                                <span class="badge bg-secondary">Inactive</span>
+                                {{/if}}
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <button class="btn btn-sm btn-outline-danger" data-action="invalidate-session" data-session-id="{{this.id}}">
+                                <i class="bi bi-x-circle"></i> Invalidate
+                            </button>
+                        </div>
+                    </div>
+                    {{/each}}
+                </div>
+                {{else}}
+                <p class="text-muted mb-0">No active sessions</p>
+                {{/if}}
+                
+                {{#if sessions}}
+                <div class="mt-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            Showing {{sessions.length}} of {{totalActiveSessions}} active sessions
+                        </small>
+                        <button class="btn btn-sm btn-outline-primary" data-action="show-all-sessions" data-user-id="{{user.id}}">
+                            <i class="bi bi-list"></i> View All
+                        </button>
+                    </div>
+                </div>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/admin-user-details.js"></script>

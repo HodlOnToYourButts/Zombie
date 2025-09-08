@@ -1,0 +1,180 @@
+<div class="row">
+    <div class="col-md-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+                <i class="bi bi-gear-fill"></i> Client Details
+            </h2>
+            <div class="btn-group">
+                <a href="/admin/clients/{{encodeURIComponent client.id}}/edit" class="btn btn-warning">
+                    <i class="bi bi-pencil"></i> Edit Client
+                </a>
+                <a href="/admin/clients" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Clients
+                </a>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">{{client.name}}</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">Client ID:</dt>
+                    <dd class="col-sm-9"><code>{{client.clientId}}</code></dd>
+                    
+                    <dt class="col-sm-3">Description:</dt>
+                    <dd class="col-sm-9">{{#if client.description}}{{client.description}}{{else}}<em class="text-muted">No description</em>{{/if}}</dd>
+                    
+                    <dt class="col-sm-3">Type:</dt>
+                    <dd class="col-sm-9">
+                        {{#if client.confidential}}
+                        <span class="badge bg-primary">Confidential</span>
+                        <small class="text-muted">Can securely store client secrets</small>
+                        {{else}}
+                        <span class="badge bg-info">Public</span>
+                        <small class="text-muted">Single-page apps, mobile apps</small>
+                        {{/if}}
+                    </dd>
+                    
+                    <dt class="col-sm-3">Status:</dt>
+                    <dd class="col-sm-9">
+                        <span class="badge bg-{{#if client.enabled}}success{{else}}danger{{/if}}">
+                            {{#if client.enabled}}Enabled{{else}}Disabled{{/if}}
+                        </span>
+                    </dd>
+                    
+                    <dt class="col-sm-3">Created:</dt>
+                    <dd class="col-sm-9">{{formatDate client.createdAt}}</dd>
+                    
+                    <dt class="col-sm-3">Last Updated:</dt>
+                    <dd class="col-sm-9">{{formatDate client.updatedAt}}</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">OAuth2 Configuration</h6>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">Redirect URIs:</dt>
+                    <dd class="col-sm-9">
+                        {{#each client.redirectUris}}
+                        <div><code>{{this}}</code></div>
+                        {{/each}}
+                    </dd>
+                    
+                    <dt class="col-sm-3">Scopes:</dt>
+                    <dd class="col-sm-9">
+                        {{#each client.scopes}}
+                        <span class="badge bg-light text-dark me-1">{{this}}</span>
+                        {{/each}}
+                    </dd>
+                    
+                    <dt class="col-sm-3">Grant Types:</dt>
+                    <dd class="col-sm-9">
+                        {{#each client.grantTypes}}
+                        <span class="badge bg-secondary me-1">{{this}}</span>
+                        {{/each}}
+                    </dd>
+                    
+                    <dt class="col-sm-3">Response Types:</dt>
+                    <dd class="col-sm-9">
+                        {{#each client.responseTypes}}
+                        <span class="badge bg-dark me-1">{{this}}</span>
+                        {{/each}}
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Client Credentials</h6>
+            </div>
+            <div class="card-body">
+                <dl class="row small">
+                    <dt class="col-sm-4">Client ID:</dt>
+                    <dd class="col-sm-8">
+                        <code>{{client.clientId}}</code>
+                        <button type="button" class="btn btn-sm btn-outline-secondary ms-1" data-action="copy-text" data-text="{{client.clientId}}">
+                            <i class="bi bi-copy"></i>
+                        </button>
+                    </dd>
+                    
+                    <dt class="col-sm-4">Client Secret:</dt>
+                    <dd class="col-sm-8">
+                        <code id="clientSecret" style="display: none;">{{clientSecret}}</code>
+                        <code id="maskedSecret">••••••••••••••••</code>
+                        <div class="mt-1">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" data-action="toggle-secret">
+                                <i class="bi bi-eye" id="toggleIcon"></i> Show
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" data-action="copy-text" data-text="{{clientSecret}}" id="copySecretBtn" style="display: none;">
+                                <i class="bi bi-copy"></i> Copy
+                            </button>
+                        </div>
+                    </dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">OIDC Endpoints</h6>
+            </div>
+            <div class="card-body">
+                <dl class="row small">
+                    <dt class="col-12">Authorization:</dt>
+                    <dd class="col-12"><code>{{baseUrl}}/auth</code></dd>
+                    
+                    <dt class="col-12">Token:</dt>
+                    <dd class="col-12"><code>{{baseUrl}}/token</code></dd>
+                    
+                    <dt class="col-12">UserInfo:</dt>
+                    <dd class="col-12"><code>{{baseUrl}}/userinfo</code></dd>
+                    
+                    <dt class="col-12">Discovery:</dt>
+                    <dd class="col-12"><code>{{baseUrl}}/.well-known/openid_configuration</code></dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Actions</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    {{#if client.enabled}}
+                    {{#unless (eq client.clientId "zombieauth")}}
+                    <button class="btn btn-warning btn-sm" data-action="toggle-client" data-client-id="{{client.id}}" data-enabled="false">
+                        <i class="bi bi-pause"></i> Disable Client
+                    </button>
+                    {{/unless}}
+                    {{else}}
+                    <button class="btn btn-success btn-sm" data-action="toggle-client" data-client-id="{{client.id}}" data-enabled="true">
+                        <i class="bi bi-play"></i> Enable Client
+                    </button>
+                    {{/if}}
+                    <button class="btn btn-info btn-sm" data-action="regenerate-secret" data-client-id="{{client.id}}">
+                        <i class="bi bi-arrow-clockwise"></i> Regenerate Secret
+                    </button>
+                    {{#unless (eq client.clientId "zombieauth")}}
+                    <hr>
+                    <button class="btn btn-danger btn-sm" data-action="delete-client" data-client-id="{{client.id}}">
+                        <i class="bi bi-trash"></i> Delete Client
+                    </button>
+                    {{/unless}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="/js/admin-client-form.js"></script>

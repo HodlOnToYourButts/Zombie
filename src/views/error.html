@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}} - ZombieAuth</title>
+    <link href="/vendor/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link href="/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        .error-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+        .error-icon {
+            font-size: 4rem;
+            color: #ff6b6b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card error-card">
+                    <div class="card-body p-5 text-center">
+                        <i class="bi bi-exclamation-triangle error-icon mb-3"></i>
+                        <h2 class="mb-3">{{title}}</h2>
+                        <p class="text-muted mb-4">{{message}}</p>
+                        
+                        <div class="d-flex gap-2 justify-content-center">
+                            <a href="/admin/login" class="btn btn-primary">
+                                <i class="bi bi-arrow-left"></i> Back to Login
+                            </a>
+                            <a href="/admin" class="btn btn-outline-secondary">
+                                <i class="bi bi-house"></i> Admin Home
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
