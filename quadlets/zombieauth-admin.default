@@ -27,12 +27,14 @@ Environment=PORT=8080
 Environment=PRIMARY_COUCHDB_URL=__PRIMARY_COUCHDB_URL__
 Environment=SESSION_SECRET=__SHARED_SESSION_SECRET__
 Exec=npm run start:admin
-ExposePort=8080
-Image=zombieauth:latest
+Image=localhost/zombieauth:latest
 Label=traefik.enable=true
 Label=traefik.http.routers.__INSTANCE_ID__-admin.rule=Host(`__ADMIN_FQDN__`)
 Label=traefik.http.services.__INSTANCE_ID__-admin.loadbalancer.server.port=8080
 Network=__NETWORK_NAME__
+Volume=/opt/zombieauth/etc-zombieauth:/etc/zombieauth
+Volume=/opt/zombieauth/tmp:/tmp
+Volume=/opt/zombieauth/var-log:/var/log
 __COUCHDB_DEPENDENCY__
 Requires=couchdb-status.service
 

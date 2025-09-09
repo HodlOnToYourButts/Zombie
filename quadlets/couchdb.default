@@ -7,11 +7,10 @@ Environment=COUCHDB_PASSWORD=__COUCHDB_ADMIN_PASSWORD__
 Environment=COUCHDB_SECRET=__SHARED_COUCHDB_SECRET__
 Environment=COUCHDB_USER=__COUCHDB_ADMIN_USER__
 Environment=ERL_FLAGS=-setcookie __SHARED_COUCHDB_COOKIE__ -name couchdb@__COUCHDB_NODE_NAME__ -kernel inet_dist_listen_min 9100 -kernel inet_dist_listen_max 9200
-ExposePort=5984
-Image=couchdb:3.3
+Image=docker.io/couchdb:3.3
 Network=__NETWORK_NAME__
 User=5984:5984
-Volume=couchdb-data:/opt/couchdb/data
+Volume=/opt/couchdb/opt-couchdb-data:/opt/couchdb/data
 
 [Install]
 WantedBy=multi-user.target

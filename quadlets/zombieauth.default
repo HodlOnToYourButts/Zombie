@@ -2,7 +2,7 @@
 # Generated from template - do not edit directly
 
 [Container]
-ContainerName=zombieauth
+ContainerName=zombieauth-oidc
 Environment=ADMIN_CLIENT_SECRET=__SHARED_ADMIN_CLIENT_SECRET__
 Environment=ADMIN_PASSWORD=__ADMIN_PASSWORD__
 Environment=ADMIN_USERNAME=admin
@@ -22,15 +22,19 @@ Environment=INSTANCE_NAME=__INSTANCE_DISPLAY_NAME__
 Environment=ISSUER=__ISSUER_URL__
 Environment=JWT_SECRET=__SHARED_JWT_SECRET__
 Environment=NODE_ENV=production
+Environment=OIDC_PORT=80
 Environment=PORT=80
 Environment=PRIMARY_COUCHDB_URL=__PRIMARY_COUCHDB_URL__
 Environment=SESSION_SECRET=__SHARED_SESSION_SECRET__
-ExposePort=80
-Image=zombieauth:latest
+Exec=npm run start:oidc
+Image=localhost/zombieauth:latest
 Label=traefik.enable=true
-Label=traefik.http.routers.__INSTANCE_ID__.rule=Host(`__FQDN__`)
-Label=traefik.http.services.__INSTANCE_ID__.loadbalancer.server.port=80
+Label=traefik.http.routers.__INSTANCE_ID__-oidc.rule=Host(`__OIDC_FQDN__`)
+Label=traefik.http.services.__INSTANCE_ID__-oidc.loadbalancer.server.port=80
 Network=__NETWORK_NAME__
+Volume=/opt/zombieauth/etc-zombieauth:/etc/zombieauth
+Volume=/opt/zombieauth/tmp:/tmp
+Volume=/opt/zombieauth/var-log:/var/log
 __COUCHDB_DEPENDENCY__
 Requires=couchdb-status.service
 
@@ -43,5 +47,5 @@ TimeoutStartSec=300
 
 [Unit]
 After=couchdb.service couchdb-status.service
-Description=ZombieAuth OAuth2/OIDC Server - __INSTANCE_NAME__
+Description=ZombieAuth OIDC Server - __INSTANCE_NAME__
 Documentation=https://github.com/your-org/zombieauth

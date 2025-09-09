@@ -12,6 +12,7 @@
 #   --network <name>             Container network name (default: zombieauth)
 #   --env-file <path>            Use existing .env file (default: ./production.env)
 #   --regenerate-secrets         Force regeneration of secrets even if .env exists
+#   --no-build                   Skip building container images
 #   --help                       Show this help
 
 set -e
@@ -24,9 +25,11 @@ OUTPUT_DIR="./production"
 GENERATE_COUCHDB=true
 GENERATE_ZOMBIEAUTH=true
 NETWORK_NAME="zombieauth"
-ENV_FILE="./production.env"
+ENV_FILE=""
 REGENERATE_SECRETS=false
+BUILD_IMAGES=true
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 TEMPLATE_DIR="$(dirname "$SCRIPT_DIR")/quadlets"
 
 # Parse command line arguments
@@ -68,6 +71,10 @@ while [[ $# -gt 0 ]]; do
       REGENERATE_SECRETS=true
       shift
       ;;
+    --no-build)
+      BUILD_IMAGES=false
+      shift
+      ;;
     --help)
       head -15 "$0" | tail -13
       exit 0
@@ -86,6 +93,7 @@ echo "Environment File: $ENV_FILE"
 echo "Generate CouchDB: $GENERATE_COUCHDB"
 echo "Generate ZombieAuth: $GENERATE_ZOMBIEAUTH"
 echo "Network: $NETWORK_NAME"
+echo "Build Images: $BUILD_IMAGES"
 echo "=========================================="
 
 # Check template directory exists
@@ -96,6 +104,11 @@ fi
 
 # Create output directory
 mkdir -p "$OUTPUT_DIR"
+
+# Set default ENV_FILE location if not specified
+if [ -z "$ENV_FILE" ]; then
+    ENV_FILE="$OUTPUT_DIR/production.env"
+fi
 
 # Function to generate a random string
 generate_random_string() {
@@ -258,6 +271,44 @@ echo "CLUSTER_INSTANCES=$CLUSTER_INSTANCES" >> "$ENV_FILE"
 echo "COUCHDB_NODE_MAPPING=$COUCHDB_NODE_MAPPING" >> "$ENV_FILE"
 echo "ALLOWED_ORIGINS=$ALLOWED_ORIGINS" >> "$ENV_FILE"
 
+# Build container images if requested
+if [ "$BUILD_IMAGES" = true ]; then
+    echo "🔨 Building production container images..."
+    
+    # Detect container engine
+    if command -v podman > /dev/null 2>&1; then
+        CONTAINER_CMD="podman"
+    elif command -v docker > /dev/null 2>&1; then
+        CONTAINER_CMD="docker"
+    else
+        echo "❌ No container engine found (podman or docker required)"
+        exit 1
+    fi
+    
+    echo "Using container engine: $CONTAINER_CMD"
+    
+    # Build main ZombieAuth image
+    if [ "$GENERATE_ZOMBIEAUTH" = true ]; then
+        echo "   Building zombieauth:latest..."
+        cd "$PROJECT_DIR"
+        $CONTAINER_CMD build -t localhost/zombieauth:latest -f Dockerfile .
+        echo "✅ Built localhost/zombieauth:latest"
+    fi
+    
+    # Build cluster status image if it exists
+    if [ "$GENERATE_ZOMBIEAUTH" = true ] && [ -f "$PROJECT_DIR/cluster-status/Dockerfile" ]; then
+        echo "   Building zombieauth-cluster-status:latest..."
+        cd "$PROJECT_DIR/cluster-status"
+        $CONTAINER_CMD build -t localhost/zombieauth-cluster-status:latest .
+        echo "✅ Built localhost/zombieauth-cluster-status:latest"
+    elif [ "$GENERATE_ZOMBIEAUTH" = true ]; then
+        echo "⚠️  cluster-status/Dockerfile not found - you'll need to build the status image manually"
+    fi
+    
+    cd "$SCRIPT_DIR"
+    echo "✅ Container image building complete!"
+fi
+
 # Generate network quadlet
 cat > "$OUTPUT_DIR/$NETWORK_NAME.network" << EOF
 # ZombieAuth cluster network
@@ -332,7 +383,7 @@ for i in "${!NAMES_ARRAY[@]}"; do
     
     # Generate ZombieAuth OIDC and Admin quadlets
     if [ "$GENERATE_ZOMBIEAUTH" = true ]; then
-        substitute_template "$TEMPLATE_DIR/zombieauth-oidc.default" "$INSTANCE_DIR/zombieauth-oidc.container" "$INSTANCE_NAME" "$DOMAIN" "$STATUS_DOMAIN"
+        substitute_template "$TEMPLATE_DIR/zombieauth.default" "$INSTANCE_DIR/zombieauth.container" "$INSTANCE_NAME" "$DOMAIN" "$STATUS_DOMAIN"
         substitute_template "$TEMPLATE_DIR/zombieauth-admin.default" "$INSTANCE_DIR/zombieauth-admin.container" "$INSTANCE_NAME" "$DOMAIN" "$STATUS_DOMAIN"
     fi
     
@@ -345,6 +396,27 @@ set -e
 
 echo "🚀 Deploying $INSTANCE_NAME to /etc/containers/systemd/"
 
+# Create host directories and set permissions
+echo "📁 Creating host directories..."
+EOF
+
+# Add directory creation commands conditionally
+if [ "$GENERATE_COUCHDB" = true ]; then
+    cat >> "$INSTANCE_DIR/deploy.sh" << EOF
+sudo mkdir -p /opt/couchdb/opt-couchdb-data
+EOF
+fi
+
+if [ "$GENERATE_ZOMBIEAUTH" = true ]; then
+    cat >> "$INSTANCE_DIR/deploy.sh" << EOF
+sudo mkdir -p /opt/zombieauth/etc-zombieauth
+sudo mkdir -p /opt/zombieauth/tmp
+sudo mkdir -p /opt/zombieauth/var-log
+EOF
+fi
+
+cat >> "$INSTANCE_DIR/deploy.sh" << EOF
+
 # Copy quadlet files
 sudo cp *.container /etc/containers/systemd/
 
@@ -356,13 +428,13 @@ echo ""
 echo "🔧 Start services:"
 $([ "$GENERATE_COUCHDB" = true ] && echo "sudo systemctl start couchdb.service")
 $([ "$GENERATE_ZOMBIEAUTH" = true ] && echo "sudo systemctl start couchdb-status.service")
-$([ "$GENERATE_ZOMBIEAUTH" = true ] && echo "sudo systemctl start zombieauth-oidc.service")
+$([ "$GENERATE_ZOMBIEAUTH" = true ] && echo "sudo systemctl start zombieauth.service")
 $([ "$GENERATE_ZOMBIEAUTH" = true ] && echo "sudo systemctl start zombieauth-admin.service")
 echo ""
 echo "🔧 Enable auto-start:"
 $([ "$GENERATE_COUCHDB" = true ] && echo "sudo systemctl enable couchdb.service")
 $([ "$GENERATE_ZOMBIEAUTH" = true ] && echo "sudo systemctl enable couchdb-status.service")
-$([ "$GENERATE_ZOMBIEAUTH" = true ] && echo "sudo systemctl enable zombieauth-oidc.service")
+$([ "$GENERATE_ZOMBIEAUTH" = true ] && echo "sudo systemctl enable zombieauth.service")
 $([ "$GENERATE_ZOMBIEAUTH" = true ] && echo "sudo systemctl enable zombieauth-admin.service")
 echo ""
 echo "📡 Service URLs:"
@@ -373,8 +445,7 @@ EOF
     chmod +x "$INSTANCE_DIR/deploy.sh"
 done
 
-# Copy the .env file to output directory for reference
-cp "$ENV_FILE" "$OUTPUT_DIR/production.env"
+# Note: ENV_FILE is already in the output directory
 
 echo ""
 echo "✅ Quadlet generation complete!"
