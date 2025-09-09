@@ -32,28 +32,13 @@ function addOidcUser(req, renderData) {
   return { ...renderData, oidc_user: req.oidc_user };
 }
 
-// Admin login page - now redirects to OIDC auth
-router.get('/login', (req, res) => {
-  if (req.session.oidc_user) {
-    return res.redirect('/admin');
-  }
-  
-  // Show login page with OIDC login option
-  res.render('oidc-login', {
-    layout: false,
-    error: req.query.error === 'access_denied' ? 'Access denied. Admin role required.' :
-           req.query.error === 'authentication_failed' ? 'Authentication failed.' :
-           req.query.error === 'server_error' ? 'Server error occurred.' : null,
-    success: req.query.success,
-    loginUrl: '/admin/auth'
-  });
-});
+// Login is handled directly via /auth route - no separate login page needed
 
 // Initiate OIDC authentication
 router.get('/auth', (req, res) => {
   // Set the return URL to admin dashboard before redirecting to login
-  if (!req.session.oidc_return_to || req.session.oidc_return_to === '/admin/auth') {
-    req.session.oidc_return_to = '/admin';
+  if (!req.session.oidc_return_to || req.session.oidc_return_to === '/auth') {
+    req.session.oidc_return_to = '/';
   }
   oidcAuth.redirectToLogin(req, res);
 });

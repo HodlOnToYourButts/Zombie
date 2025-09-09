@@ -75,14 +75,64 @@ class OIDCAuthMiddleware {
     }
   }
 
-  // Verify ID token and extract claims
-  verifyIdToken(idToken) {
+  // Verify ID token using OIDC server's public keys
+  async verifyIdToken(idToken) {
     try {
-      return jwtManager.verifyToken(idToken, 'access'); // ID tokens use same verification as access tokens
+      const jwt = require('jsonwebtoken');
+      
+      // Fetch JWKS from OIDC server
+      const jwksResponse = await fetch(this.endpoints.jwks_uri);
+      if (!jwksResponse.ok) {
+        throw new Error(`Failed to fetch JWKS: ${jwksResponse.statusText}`);
+      }
+      
+      const jwks = await jwksResponse.json();
+      if (!jwks.keys || jwks.keys.length === 0) {
+        throw new Error('No keys found in JWKS');
+      }
+      
+      // Use the first key (assuming single key for now)
+      const publicKey = jwks.keys[0];
+      if (publicKey.kty !== 'RSA') {
+        throw new Error('Only RSA keys are supported');
+      }
+      
+      // Convert JWK to PEM format
+      const rsaKey = this.jwkToPem(publicKey);
+      
+      // Verify token using OIDC server's public key
+      return jwt.verify(idToken, rsaKey, {
+        algorithms: ['RS256'],
+        issuer: this.endpoints.issuer
+      });
     } catch (error) {
       console.error('ID token verification error:', error);
       throw error;
     }
+  }
+
+  // Convert JWK RSA key to PEM format using built-in crypto
+  jwkToPem(jwk) {
+    const crypto = require('crypto');
+    
+    // Convert base64url to base64
+    const n = jwk.n.replace(/-/g, '+').replace(/_/g, '/');
+    const e = jwk.e.replace(/-/g, '+').replace(/_/g, '/');
+    
+    // Create public key object
+    const keyObject = crypto.createPublicKey({
+      key: {
+        kty: 'RSA',
+        n: n,
+        e: e
+      },
+      format: 'jwk'
+    });
+    
+    return keyObject.export({
+      type: 'spki',
+      format: 'pem'
+    });
   }
 
   // Middleware to require OIDC authentication
@@ -93,7 +143,7 @@ class OIDCAuthMiddleware {
       if (req.session.oidc_user) {
         try {
           // Verify the stored ID token is still valid
-          const claims = this.verifyIdToken(req.session.oidc_user.id_token);
+          const claims = await this.verifyIdToken(req.session.oidc_user.id_token);
           
           // Check if token is expired
           if (claims.exp < Math.floor(Date.now() / 1000)) {
@@ -196,9 +246,15 @@ class OIDCAuthMiddleware {
       console.log('Exchanging code for tokens...');
       const tokens = await this.exchangeCodeForTokens(req, code, state);
       console.log('Token exchange successful:', !!tokens.access_token);
+      console.log('Tokens received:', { 
+        has_access_token: !!tokens.access_token,
+        has_id_token: !!tokens.id_token,
+        has_refresh_token: !!tokens.refresh_token,
+        id_token_type: typeof tokens.id_token
+      });
       
       // Verify ID token
-      const claims = this.verifyIdToken(tokens.id_token);
+      const claims = await this.verifyIdToken(tokens.id_token);
       
       // Validate nonce
       if (claims.nonce !== req.session.oidc_nonce) {
@@ -292,8 +348,8 @@ class OIDCAuthMiddleware {
         console.error('Session destroy error:', err);
       }
       
-      // Redirect to login page
-      res.redirect('/admin/login');
+      // Redirect to auth page for new login
+      res.redirect('/auth');
     });
   }
 

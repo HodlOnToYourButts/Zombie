@@ -281,6 +281,8 @@ substitute_template() {
         -e "s|__INSTANCE_DISPLAY_NAME__|$(echo $instance_name | sed 's/./\U&/' | sed 's/_/ /g')|g" \
         -e "s|__INSTANCE_LOCATION__|$instance_name|g" \
         -e "s|__FQDN__|$domain|g" \
+        -e "s|__OIDC_FQDN__|$domain|g" \
+        -e "s|__ADMIN_FQDN__|$domain|g" \
         -e "s|__STATUS_FQDN__|$status_domain|g" \
         -e "s|__NETWORK_NAME__|$NETWORK_NAME|g" \
         -e "s|__PRIMARY_COUCHDB_URL__|http://couchdb:5984|g" \
@@ -328,9 +330,10 @@ for i in "${!NAMES_ARRAY[@]}"; do
         substitute_template "$TEMPLATE_DIR/couchdb-status.default" "$INSTANCE_DIR/couchdb-status.container" "$INSTANCE_NAME" "$DOMAIN" "$STATUS_DOMAIN"
     fi
     
-    # Generate ZombieAuth quadlet
+    # Generate ZombieAuth OIDC and Admin quadlets
     if [ "$GENERATE_ZOMBIEAUTH" = true ]; then
-        substitute_template "$TEMPLATE_DIR/zombieauth.default" "$INSTANCE_DIR/zombieauth.container" "$INSTANCE_NAME" "$DOMAIN" "$STATUS_DOMAIN"
+        substitute_template "$TEMPLATE_DIR/zombieauth-oidc.default" "$INSTANCE_DIR/zombieauth-oidc.container" "$INSTANCE_NAME" "$DOMAIN" "$STATUS_DOMAIN"
+        substitute_template "$TEMPLATE_DIR/zombieauth-admin.default" "$INSTANCE_DIR/zombieauth-admin.container" "$INSTANCE_NAME" "$DOMAIN" "$STATUS_DOMAIN"
     fi
     
     # Generate instance deployment script
@@ -353,15 +356,18 @@ echo ""
 echo "🔧 Start services:"
 $([ "$GENERATE_COUCHDB" = true ] && echo "sudo systemctl start couchdb.service")
 $([ "$GENERATE_ZOMBIEAUTH" = true ] && echo "sudo systemctl start couchdb-status.service")
-$([ "$GENERATE_ZOMBIEAUTH" = true ] && echo "sudo systemctl start zombieauth.service")
+$([ "$GENERATE_ZOMBIEAUTH" = true ] && echo "sudo systemctl start zombieauth-oidc.service")
+$([ "$GENERATE_ZOMBIEAUTH" = true ] && echo "sudo systemctl start zombieauth-admin.service")
 echo ""
 echo "🔧 Enable auto-start:"
 $([ "$GENERATE_COUCHDB" = true ] && echo "sudo systemctl enable couchdb.service")
 $([ "$GENERATE_ZOMBIEAUTH" = true ] && echo "sudo systemctl enable couchdb-status.service")
-$([ "$GENERATE_ZOMBIEAUTH" = true ] && echo "sudo systemctl enable zombieauth.service")
+$([ "$GENERATE_ZOMBIEAUTH" = true ] && echo "sudo systemctl enable zombieauth-oidc.service")
+$([ "$GENERATE_ZOMBIEAUTH" = true ] && echo "sudo systemctl enable zombieauth-admin.service")
 echo ""
 echo "📡 Service URLs:"
-echo "  ZombieAuth: http://$DOMAIN"
+echo "  OIDC Endpoint: Configure in Traefik for your SSO domain"
+echo "  Admin Interface: Configure in Traefik for your admin domain"
 echo "  CouchDB Status: http://$STATUS_DOMAIN"
 EOF
     chmod +x "$INSTANCE_DIR/deploy.sh"

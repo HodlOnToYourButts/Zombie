@@ -13,6 +13,14 @@ echo "Starting ZombieAuth development cluster..."
 detect_container_engine || exit 1
 check_container_engine || exit 1
 
+# Load development configuration to get instance count and names
+if [ -f "development/development.env" ]; then
+  source development/development.env
+else
+  echo "❌ Error: development/development.env not found. Run ./scripts/create-development.sh first."
+  exit 1
+fi
+
 # Check if CouchDB deployment is fresh
 echo "Checking if CouchDB deployment is fresh..."
 FRESH_DEPLOYMENT=false
@@ -21,7 +29,7 @@ FRESH_DEPLOYMENT=false
 VOLUME_PATTERN="^development_couchdb[0-9]+_data$"
 EXISTING_VOLUMES=$(container_cmd volume ls --format "{{.Name}}" 2>/dev/null | grep -E "$VOLUME_PATTERN" | wc -l)
 
-if [ "$EXISTING_VOLUMES" -lt $INSTANCE_COUNT ]; then
+if [ "$EXISTING_VOLUMES" -lt "$INSTANCE_COUNT" ]; then
   FRESH_DEPLOYMENT=true
   log "Fresh deployment detected - CouchDB volumes don't exist"
 else
@@ -32,14 +40,6 @@ else
   else
     log "Existing deployment detected - skipping cluster setup"
   fi
-fi
-
-# Load development configuration to get instance count and names
-if [ -f "development/development.env" ]; then
-  source development/development.env
-else
-  echo "❌ Error: development/development.env not found. Run ./scripts/create-development.sh first."
-  exit 1
 fi
 
 # Parse instance names
@@ -165,28 +165,47 @@ for i in "${!NAMES_ARRAY[@]}"; do
   wait_for_container "zombieauth-couchdb$((i+1))-status"
 done
 
-# Start ZombieAuth instances (without dependencies since CouchDB is already running)
-log "Starting ZombieAuth instances..."
-ZOMBIEAUTH_SERVICES=""
+# Start ZombieAuth OIDC and Admin instances (without dependencies since CouchDB is already running)
+log "Starting ZombieAuth OIDC instances..."
+OIDC_SERVICES=""
 for i in "${!NAMES_ARRAY[@]}"; do
-  if [ -n "$ZOMBIEAUTH_SERVICES" ]; then
-    ZOMBIEAUTH_SERVICES+=" "
+  if [ -n "$OIDC_SERVICES" ]; then
+    OIDC_SERVICES+=" "
   fi
-  ZOMBIEAUTH_SERVICES+="zombieauth$((i+1))"
+  OIDC_SERVICES+="zombieauth$((i+1))"
 done
-(cd development && compose_cmd up -d --no-deps $ZOMBIEAUTH_SERVICES) >/dev/null
+(cd development && compose_cmd up -d --no-deps $OIDC_SERVICES) >/dev/null
+
+log "Starting ZombieAuth Admin instances..."
+ADMIN_SERVICES=""
+for i in "${!NAMES_ARRAY[@]}"; do
+  if [ -n "$ADMIN_SERVICES" ]; then
+    ADMIN_SERVICES+=" "
+  fi
+  ADMIN_SERVICES+="zombieauth-admin$((i+1))"
+done
+(cd development && compose_cmd up -d --no-deps $ADMIN_SERVICES) >/dev/null
 
 # Wait for ZombieAuth instances to be ready  
-log "Waiting for ZombieAuth instances to start..."
+log "Waiting for ZombieAuth OIDC instances to start..."
 for i in "${!NAMES_ARRAY[@]}"; do
   INSTANCE_NAME="${NAMES_ARRAY[$i]}"
   wait_for_container "zombieauth-$INSTANCE_NAME"
+done
+
+log "Waiting for ZombieAuth Admin instances to start..."
+for i in "${!NAMES_ARRAY[@]}"; do
+  INSTANCE_NAME="${NAMES_ARRAY[$i]}"
+  wait_for_container "zombieauth-admin-$INSTANCE_NAME"
 done
 
 log "ZombieAuth development cluster complete!"
 log "Services available at:"
 for i in "${!NAMES_ARRAY[@]}"; do
   INSTANCE_NAME="${NAMES_ARRAY[$i]}"
-  INSTANCE_PORT=$((BASE_PORT + i))
-  log "  - $INSTANCE_NAME: http://localhost:$INSTANCE_PORT/admin"
+  OIDC_PORT=$((BASE_PORT + i))
+  ADMIN_PORT=$((BASE_PORT + 1000 + i))
+  log "  - $INSTANCE_NAME:"
+  log "    OIDC Endpoint: http://localhost:$OIDC_PORT"
+  log "    Admin Interface: http://localhost:$ADMIN_PORT"
 done

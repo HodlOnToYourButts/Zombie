@@ -14,7 +14,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
             <div class="d-flex align-items-center">
-                <a class="navbar-brand me-2" href="/admin">
+                <a class="navbar-brand me-2" href="/">
                     🧟 ZombieAuth
                 </a>
                 <button class="navbar-toggler me-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -50,7 +50,7 @@
                         </span></li>
                         <li><hr class="dropdown-divider"></li>
                         {{/if}}
-                        <li><a class="dropdown-item" href="/admin/logout">
+                        <li><a class="dropdown-item" href="/logout">
                             <i class="bi bi-box-arrow-right"></i> Logout
                         </a></li>
                     </ul>
@@ -59,17 +59,17 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link {{#if isClients}}active{{/if}}" href="/admin/clients">
+                        <a class="nav-link {{#if isClients}}active{{/if}}" href="/clients">
                             <i class="bi bi-gear"></i> Clients
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{#if isSessions}}active{{/if}}" href="/admin/sessions">
+                        <a class="nav-link {{#if isSessions}}active{{/if}}" href="/sessions">
                             <i class="bi bi-activity"></i> Sessions
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{#if isUsers}}active{{/if}}" href="/admin/users">
+                        <a class="nav-link {{#if isUsers}}active{{/if}}" href="/users">
                             <i class="bi bi-people"></i> Users
                         </a>
                     </li>
@@ -105,7 +105,7 @@
                             </span></li>
                             <li><hr class="dropdown-divider"></li>
                             {{/if}}
-                            <li><a class="dropdown-item" href="/admin/logout">
+                            <li><a class="dropdown-item" href="/logout">
                                 <i class="bi bi-box-arrow-right"></i> Logout
                             </a></li>
                         </ul>

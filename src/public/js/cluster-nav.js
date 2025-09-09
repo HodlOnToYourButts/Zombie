@@ -38,7 +38,7 @@ async function updateClusterNavStatus() {
         if (spinner) spinner.style.display = 'block';
         if (spinnerDesktop) spinnerDesktop.style.display = 'block';
         
-        const response = await fetch('/admin/api/cluster/health', {
+        const response = await fetch('/api/cluster/health', {
             credentials: 'same-origin'
         });
         
@@ -61,7 +61,7 @@ async function updateClusterNavStatus() {
             if (contentDesktop) displayClusterNavStatus(result.health, contentDesktop);
             
             // Check for isolation warnings
-            const warningResponse = await fetch('/admin/api/cluster/isolation-warning', {
+            const warningResponse = await fetch('/api/cluster/isolation-warning', {
                 credentials: 'same-origin'
             });
             
@@ -192,8 +192,8 @@ function updateGlobalIsolationWarning(warning) {
 function showClusterDetails() {
     // Optional: Show a modal or navigate to cluster details
     // For now, just navigate to dashboard where detailed cluster info is shown
-    if (window.location.pathname !== '/admin' && window.location.pathname !== '/admin/') {
-        window.location.href = '/admin#cluster-status';
+    if (window.location.pathname !== '/' && window.location.pathname !== '') {
+        window.location.href = '/#cluster-status';
     }
 }
 

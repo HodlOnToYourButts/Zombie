@@ -37,8 +37,8 @@ async function clearSessions(event) {
     button.innerHTML = '<i class="bi bi-hourglass-split"></i> Clearing...';
     
     try {
-        console.log('Making fetch request to /admin/api/sessions/clear-inactive');
-        const response = await fetch('/admin/api/sessions/clear-inactive', {
+        console.log('Making fetch request to /api/sessions/clear-inactive');
+        const response = await fetch('/api/sessions/clear-inactive', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -85,7 +85,7 @@ async function refreshClusterStatus() {
         // Show loading spinner
         clusterStatusDiv.innerHTML = '<div class="text-center"><div class="spinner-border spinner-border-sm" role="status"></div></div>';
 
-        const response = await fetch('/admin/api/cluster/health', {
+        const response = await fetch('/api/cluster/health', {
             credentials: 'same-origin'
         });
 
@@ -99,7 +99,7 @@ async function refreshClusterStatus() {
             displayClusterStatus(result.health);
             
             // Check for isolation warnings
-            const warningResponse = await fetch('/admin/api/cluster/isolation-warning', {
+            const warningResponse = await fetch('/api/cluster/isolation-warning', {
                 credentials: 'same-origin'
             });
             

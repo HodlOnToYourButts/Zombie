@@ -218,11 +218,11 @@ class Database {
         throw new Error('DEFAULT_CLIENT_ID must follow format "client_<32_hex_chars>" to match auto-generated client IDs. Generate with: openssl rand -hex 16');
       }
       
-      // All possible redirect URIs for all instances
+      // All possible redirect URIs for all instances (admin servers on ports 4000+)
       const allRedirectUris = [
-        'http://localhost:3000/admin/callback',  // DC1
-        'http://localhost:3001/admin/callback',  // DC2  
-        'http://localhost:3002/admin/callback'   // Home
+        'http://localhost:4000/callback',  // Node1 admin
+        'http://localhost:4001/callback',  // Node2 admin  
+        'http://localhost:4002/callback'   // Node3 admin
       ];
       
       // Check if shared client already exists
@@ -247,7 +247,18 @@ class Database {
         await sharedClient.save();
         console.log(`Shared OIDC client created successfully: ${sharedClientId}`);
       } else {
-        console.log(`Shared OIDC client already exists: ${sharedClientId}`);
+        // Update existing client with new redirect URIs if they've changed
+        const currentUris = existingClient.redirectUris || [];
+        const newUris = allRedirectUris;
+        
+        if (JSON.stringify(currentUris.sort()) !== JSON.stringify(newUris.sort())) {
+          console.log(`Updating redirect URIs for existing client: ${sharedClientId}`);
+          existingClient.redirectUris = newUris;
+          await existingClient.save();
+          console.log(`Client redirect URIs updated successfully`);
+        } else {
+          console.log(`Shared OIDC client already exists: ${sharedClientId}`);
+        }
       }
     } catch (error) {
       if (error.statusCode === 409) {

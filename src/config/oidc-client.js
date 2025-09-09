@@ -12,8 +12,8 @@ function getAdminClientConfig(req) {
   return {
     client_id: clientId,
     client_secret: process.env.ADMIN_CLIENT_SECRET || 'zombieauth-admin-secret-change-in-production',
-    redirect_uri: `${protocol}://${host}/admin/callback`,
-    post_logout_redirect_uri: `${protocol}://${host}/admin/login`,
+    redirect_uri: `${protocol}://${host}/callback`,
+    post_logout_redirect_uri: `${protocol}://${host}/login`,
     response_types: ['code'],
     grant_types: ['authorization_code', 'refresh_token'],
     scope: 'openid profile email',
@@ -28,8 +28,8 @@ console.log(`DEBUG: ADMIN_CLIENT_CONFIG using client_id: ${clientIdForConfig}`);
 const ADMIN_CLIENT_CONFIG = {
   client_id: clientIdForConfig,
   client_secret: process.env.ADMIN_CLIENT_SECRET || 'zombieauth-admin-secret-change-in-production',
-  redirect_uri: process.env.ADMIN_REDIRECT_URI || 'http://localhost:3000/admin/callback',
-  post_logout_redirect_uri: process.env.ADMIN_LOGOUT_REDIRECT_URI || 'http://localhost:3000/admin/login',
+  redirect_uri: process.env.ADMIN_REDIRECT_URI || 'http://localhost:4000/callback',
+  post_logout_redirect_uri: process.env.ADMIN_LOGOUT_REDIRECT_URI || 'http://localhost:4000/login',
   response_types: ['code'],
   grant_types: ['authorization_code', 'refresh_token'],
   scope: 'openid profile email',
@@ -38,9 +38,9 @@ const ADMIN_CLIENT_CONFIG = {
 
 // OIDC endpoints
 const getOidcEndpoints = (baseUrl = process.env.ISSUER || 'http://localhost:3000') => {
-  // For internal container communication, use localhost:3000 (the internal port)
+  // For internal container communication, use OIDC_INTERNAL_BASE_URL if available
   // For external URLs (like authorization_endpoint), use the configured ISSUER
-  const internalBaseUrl = 'http://localhost:3000';
+  const internalBaseUrl = process.env.OIDC_INTERNAL_BASE_URL || 'http://localhost:3000';
   
   return {
     issuer: baseUrl,

@@ -278,10 +278,11 @@ for i in "${!NAMES_ARRAY[@]}"; do
 EOF
 done
 
-# Generate ZombieAuth services
+# Generate ZombieAuth OIDC and Admin services
 for i in "${!NAMES_ARRAY[@]}"; do
     INSTANCE_NAME="${NAMES_ARRAY[$i]}"
-    ZOMBIEAUTH_PORT=$((BASE_PORT + i))
+    OIDC_PORT=$((BASE_PORT + i))
+    ADMIN_PORT=$((BASE_PORT + 1000 + i))  # Admin ports start at BASE_PORT + 1000
     
     # Build peer CouchDB URLs (all except the primary)
     PEER_URLS=""
@@ -295,7 +296,7 @@ for i in "${!NAMES_ARRAY[@]}"; do
     done
     
     cat >> development/docker-compose.yml << EOF
-  # ZombieAuth Instance - $INSTANCE_NAME
+  # ZombieAuth OIDC Instance - $INSTANCE_NAME
   zombieauth$((i+1)):
     build: ..
     container_name: zombieauth-$INSTANCE_NAME
@@ -303,7 +304,8 @@ for i in "${!NAMES_ARRAY[@]}"; do
       - couchdb$((i+1))
     environment:
       - NODE_ENV=development
-      - PORT=3000
+      - OIDC_PORT=8080
+      - PORT=8080
       - INSTANCE_ID=$INSTANCE_NAME
       - INSTANCE_NAME=$INSTANCE_NAME
       - INSTANCE_LOCATION=$INSTANCE_NAME
@@ -322,16 +324,57 @@ for i in "${!NAMES_ARRAY[@]}"; do
       - SESSION_SECRET=$SESSION_SECRET
       - ADMIN_CLIENT_SECRET=$ADMIN_CLIENT_SECRET
       - ENABLE_TEST_ENDPOINTS=$ENABLE_TEST_ENDPOINTS
-      - ISSUER=http://localhost:$ZOMBIEAUTH_PORT
+      - ISSUER=http://localhost:$OIDC_PORT
       - DEFAULT_CLIENT_ID=$DEFAULT_CLIENT_ID
     ports:
-      - "$ZOMBIEAUTH_PORT:3000"
+      - "$OIDC_PORT:8080"
     volumes:
       - ..:/app
       - /app/node_modules
     networks:
       - zombieauth
-    command: npm start
+    command: npm run start:oidc
+    restart: unless-stopped
+
+  # ZombieAuth Admin Instance - $INSTANCE_NAME
+  zombieauth-admin$((i+1)):
+    build: ..
+    container_name: zombieauth-admin-$INSTANCE_NAME
+    depends_on:
+      - couchdb$((i+1))
+    environment:
+      - NODE_ENV=development
+      - ADMIN_PORT=8080
+      - PORT=8080
+      - INSTANCE_ID=$INSTANCE_NAME
+      - INSTANCE_NAME=$INSTANCE_NAME
+      - INSTANCE_LOCATION=$INSTANCE_NAME
+      - PRIMARY_COUCHDB_URL=http://couchdb$((i+1)).zombieauth:5984
+      - PEER_COUCHDB_URLS=$PEER_URLS
+      - CLUSTER_INSTANCES=$CLUSTER_INSTANCES
+      - COUCHDB_NODE_MAPPING=$COUCHDB_NODE_MAPPING
+      - CLUSTER_STATUS_URL=http://couchdb$((i+1))-status:3100
+      - COUCHDB_USER=$ZOMBIEAUTH_USER
+      - COUCHDB_PASSWORD=$ZOMBIEAUTH_PASSWORD
+      - COUCHDB_SECRET=$COUCHDB_SECRET
+      - COUCHDB_DATABASE=zombieauth
+      - ADMIN_USERNAME=$ADMIN_USERNAME
+      - ADMIN_PASSWORD=$ADMIN_PASSWORD
+      - JWT_SECRET=$JWT_SECRET
+      - SESSION_SECRET=$SESSION_SECRET
+      - ADMIN_CLIENT_SECRET=$ADMIN_CLIENT_SECRET
+      - ENABLE_TEST_ENDPOINTS=$ENABLE_TEST_ENDPOINTS
+      - ISSUER=http://localhost:$OIDC_PORT
+      - OIDC_INTERNAL_BASE_URL=http://zombieauth$((i+1)):8080
+      - DEFAULT_CLIENT_ID=$DEFAULT_CLIENT_ID
+    ports:
+      - "$ADMIN_PORT:8080"
+    volumes:
+      - ..:/app
+      - /app/node_modules
+    networks:
+      - zombieauth
+    command: npm run start:admin
     restart: unless-stopped
 
 EOF
@@ -376,11 +419,13 @@ echo "🌐 Service URLs:"
 echo "==============="
 for i in "${!NAMES_ARRAY[@]}"; do
     INSTANCE_NAME="${NAMES_ARRAY[$i]}"
-    ZOMBIEAUTH_PORT=$((BASE_PORT + i))
+    OIDC_PORT=$((BASE_PORT + i))
+    ADMIN_PORT=$((BASE_PORT + 1000 + i))
     COUCHDB_PORT=$((COUCHDB_BASE_PORT + i))
     STATUS_PORT=$((STATUS_BASE_PORT + i))
     echo "  $INSTANCE_NAME:"
-    echo "    ZombieAuth: http://localhost:$ZOMBIEAUTH_PORT/admin"
+    echo "    OIDC Endpoint: http://localhost:$OIDC_PORT"
+    echo "    Admin Interface: http://localhost:$ADMIN_PORT"
     echo "    CouchDB: http://localhost:$COUCHDB_PORT/_utils"
     echo "    Status: http://localhost:$STATUS_PORT"
 done

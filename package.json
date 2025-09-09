@@ -4,8 +4,15 @@
   "description": "Lightweight OAuth2/OpenID Connect authentication server with CouchDB backend and distributed clustering support",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "./node_modules/.bin/nodemon src/index.js",
+    "start": "npm run start:dual",
+    "start:dual": "concurrently \"npm run start:oidc\" \"npm run start:admin\"",
+    "start:oidc": "node src/oidc-server.js",
+    "start:admin": "node src/admin-server.js",
+    "start:legacy": "node src/index.js",
+    "dev": "concurrently \"npm run dev:oidc\" \"npm run dev:admin\"",
+    "dev:oidc": "./node_modules/.bin/nodemon src/oidc-server.js",
+    "dev:admin": "./node_modules/.bin/nodemon src/admin-server.js",
+    "dev:legacy": "./node_modules/.bin/nodemon src/index.js",
     "test": "jest",
     "lint": "eslint src/",
     "typecheck": "tsc --noEmit"
@@ -31,6 +38,7 @@
     "csurf": "^1.11.0"
   },
   "devDependencies": {
+    "concurrently": "^8.2.0",
     "nodemon": "^3.0.1",
     "jest": "^29.6.2",
     "eslint": "^8.45.0",
