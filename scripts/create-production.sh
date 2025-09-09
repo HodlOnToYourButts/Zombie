@@ -309,15 +309,11 @@ if [ "$BUILD_IMAGES" = true ]; then
     echo "✅ Container image building complete!"
 fi
 
-# Generate network quadlet
-cat > "$OUTPUT_DIR/$NETWORK_NAME.network" << EOF
-# ZombieAuth cluster network
-# Deploy as: $NETWORK_NAME.network
-
-[Network]
-NetworkName=$NETWORK_NAME
-Driver=bridge
-EOF
+# Note: Network quadlet creation skipped - create manually if needed
+# Example network file ($NETWORK_NAME.network):
+#   [Network]
+#   NetworkName=$NETWORK_NAME
+#   Driver=bridge
 
 # Template substitution function
 substitute_template() {
