@@ -74,9 +74,23 @@ class Database {
       try {
         // Test connection by checking if we can access the server info
         await this.client.info();
+        console.log('CouchDB connection established with authentication');
         return;
       } catch (error) {
-        console.log(`Waiting for CouchDB... (${retries + 1}/${maxRetries})`);
+        console.log(`Waiting for CouchDB... (${retries + 1}/${maxRetries}) - Error: ${error.message}`);
+        
+        // If it's an authentication error, try to connect without auth to see if CouchDB is up
+        if (error.statusCode === 401 && retries % 5 === 0) {
+          try {
+            const primaryUrl = process.env.PRIMARY_COUCHDB_URL || 'http://localhost:5984';
+            const noAuthClient = nano(primaryUrl);
+            await noAuthClient.info();
+            console.log('CouchDB is running but authentication failed - database user may not exist yet');
+          } catch (noAuthError) {
+            console.log('CouchDB appears to be unreachable');
+          }
+        }
+        
         await new Promise(resolve => setTimeout(resolve, 2000));
         retries++;
       }
