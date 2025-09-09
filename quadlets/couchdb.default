@@ -10,7 +10,7 @@ Environment=ERL_FLAGS=-setcookie __SHARED_COUCHDB_COOKIE__ -name couchdb@__COUCH
 Image=docker.io/couchdb:3.3
 Network=__NETWORK_NAME__
 User=5984:5984
-Volume=/opt/couchdb/opt-couchdb-data:/opt/couchdb/data
+Volume=/opt/couchdb/opt-couchdb-data:/opt/couchdb/data:Z
 
 [Install]
 WantedBy=multi-user.target
