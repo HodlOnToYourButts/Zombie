@@ -282,31 +282,40 @@ if [ "$BUILD_IMAGES" = true ]; then
         CONTAINER_CMD="docker"
     else
         echo "❌ No container engine found (podman or docker required)"
-        exit 1
+        echo "⚠️  Continuing with quadlet generation - you'll need to build images manually"
+        BUILD_IMAGES=false
     fi
     
-    echo "Using container engine: $CONTAINER_CMD"
-    
-    # Build main ZombieAuth image
-    if [ "$GENERATE_ZOMBIEAUTH" = true ]; then
-        echo "   Building zombieauth:latest..."
-        cd "$PROJECT_DIR"
-        $CONTAINER_CMD build -t localhost/zombieauth:latest -f Dockerfile .
-        echo "✅ Built localhost/zombieauth:latest"
+    if [ "$BUILD_IMAGES" = true ]; then
+        echo "Using container engine: $CONTAINER_CMD"
+        
+        # Build main ZombieAuth image
+        if [ "$GENERATE_ZOMBIEAUTH" = true ]; then
+            echo "   Building zombieauth:latest..."
+            cd "$PROJECT_DIR"
+            if $CONTAINER_CMD build -t localhost/zombieauth:latest -f Dockerfile .; then
+                echo "✅ Built localhost/zombieauth:latest"
+            else
+                echo "❌ Failed to build zombieauth:latest - continuing with quadlet generation"
+            fi
+        fi
+        
+        # Build cluster status image if it exists
+        if [ "$GENERATE_ZOMBIEAUTH" = true ] && [ -f "$PROJECT_DIR/cluster-status-service/Dockerfile" ]; then
+            echo "   Building zombieauth-cluster-status:latest..."
+            cd "$PROJECT_DIR/cluster-status-service"
+            if $CONTAINER_CMD build -t localhost/zombieauth-cluster-status:latest .; then
+                echo "✅ Built localhost/zombieauth-cluster-status:latest"
+            else
+                echo "❌ Failed to build zombieauth-cluster-status:latest - continuing with quadlet generation"
+            fi
+        elif [ "$GENERATE_ZOMBIEAUTH" = true ]; then
+            echo "⚠️  cluster-status-service/Dockerfile not found - you'll need to build the status image manually"
+        fi
+        
+        cd "$SCRIPT_DIR"
+        echo "✅ Container image building complete!"
     fi
-    
-    # Build cluster status image if it exists
-    if [ "$GENERATE_ZOMBIEAUTH" = true ] && [ -f "$PROJECT_DIR/cluster-status-service/Dockerfile" ]; then
-        echo "   Building zombieauth-cluster-status:latest..."
-        cd "$PROJECT_DIR/cluster-status-service"
-        $CONTAINER_CMD build -t localhost/zombieauth-cluster-status:latest .
-        echo "✅ Built localhost/zombieauth-cluster-status:latest"
-    elif [ "$GENERATE_ZOMBIEAUTH" = true ]; then
-        echo "⚠️  cluster-status-service/Dockerfile not found - you'll need to build the status image manually"
-    fi
-    
-    cd "$SCRIPT_DIR"
-    echo "✅ Container image building complete!"
 fi
 
 # Note: Network quadlet creation skipped - create manually if needed
