@@ -260,7 +260,7 @@ for i in "${!NAMES_ARRAY[@]}"; do
     cat >> development/docker-compose.yml << EOF
   # Cluster Status Service - $INSTANCE_NAME
   couchdb$((i+1))-status:
-    build: ../cluster-status-service
+    image: ghcr.io/hodlontoyourbutts/cluster-status:latest
     container_name: zombieauth-couchdb$((i+1))-status
     environment:
       - PORT=3100

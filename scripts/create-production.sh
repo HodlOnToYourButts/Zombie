@@ -13,6 +13,7 @@
 #   --env-file <path>            Use existing .env file (default: ./production.env)
 #   --regenerate-secrets         Force regeneration of secrets even if .env exists
 #   --no-build                   Skip building container images
+#   --use-secrets                Use Podman/Docker secrets instead of environment variables
 #   --help                       Show this help
 
 set -e
@@ -28,6 +29,7 @@ NETWORK_NAME="zombieauth"
 ENV_FILE=""
 REGENERATE_SECRETS=false
 BUILD_IMAGES=true
+USE_SECRETS=false
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 TEMPLATE_DIR="$(dirname "$SCRIPT_DIR")/quadlets"
@@ -75,6 +77,10 @@ while [[ $# -gt 0 ]]; do
       BUILD_IMAGES=false
       shift
       ;;
+    --use-secrets)
+      USE_SECRETS=true
+      shift
+      ;;
     --help)
       head -15 "$0" | tail -13
       exit 0
@@ -94,6 +100,7 @@ echo "Generate CouchDB: $GENERATE_COUCHDB"
 echo "Generate ZombieAuth: $GENERATE_ZOMBIEAUTH"
 echo "Network: $NETWORK_NAME"
 echo "Build Images: $BUILD_IMAGES"
+echo "Use Secrets: $USE_SECRETS"
 echo "=========================================="
 
 # Check template directory exists
@@ -120,6 +127,30 @@ generate_random_string() {
 generate_password() {
     local length=${1:-16}
     openssl rand -base64 $((length * 3 / 4)) | tr -d "=+/\n" | cut -c1-${length}
+}
+
+# Function to detect container runtime
+detect_container_runtime() {
+    if command -v podman > /dev/null 2>&1; then
+        echo "podman"
+    elif command -v docker > /dev/null 2>&1; then
+        echo "docker"
+    else
+        echo ""
+    fi
+}
+
+# Function to create container secret
+create_container_secret() {
+    local secret_name="$1"
+    local secret_value="$2"
+    local container_cmd="$3"
+    
+    if [ "$container_cmd" = "podman" ]; then
+        echo "$secret_value" | podman secret create "$secret_name" - 2>/dev/null || true
+    elif [ "$container_cmd" = "docker" ]; then
+        echo "$secret_value" | docker secret create "$secret_name" - 2>/dev/null || true
+    fi
 }
 
 # Load or generate secrets
@@ -300,17 +331,15 @@ if [ "$BUILD_IMAGES" = true ]; then
             fi
         fi
         
-        # Build cluster status image if it exists
-        if [ "$GENERATE_ZOMBIEAUTH" = true ] && [ -f "$PROJECT_DIR/cluster-status-service/Dockerfile" ]; then
-            echo "   Building zombieauth-cluster-status:latest..."
-            cd "$PROJECT_DIR/cluster-status-service"
-            if $CONTAINER_CMD build -t localhost/zombieauth-cluster-status:latest .; then
-                echo "✅ Built localhost/zombieauth-cluster-status:latest"
+        # Pull cluster status image from GHCR
+        if [ "$GENERATE_ZOMBIEAUTH" = true ]; then
+            echo "   Pulling ghcr.io/hodlontoyourbutts/cluster-status:latest..."
+            if $CONTAINER_CMD pull ghcr.io/hodlontoyourbutts/cluster-status:latest; then
+                echo "✅ Pulled ghcr.io/hodlontoyourbutts/cluster-status:latest"
             else
-                echo "❌ Failed to build zombieauth-cluster-status:latest - continuing with quadlet generation"
+                echo "❌ Failed to pull cluster-status image - continuing with quadlet generation"
+                echo "   You may need to authenticate with GitHub Container Registry"
             fi
-        elif [ "$GENERATE_ZOMBIEAUTH" = true ]; then
-            echo "⚠️  cluster-status-service/Dockerfile not found - you'll need to build the status image manually"
         fi
         
         cd "$SCRIPT_DIR"

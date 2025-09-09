@@ -7,7 +7,7 @@ Environment=COUCHDB_ADMIN_PASSWORD=__COUCHDB_ADMIN_PASSWORD__
 Environment=COUCHDB_ADMIN_USER=__COUCHDB_ADMIN_USER__
 Environment=COUCHDB_URL=__COUCHDB_INTERNAL_URL__
 Environment=PORT=80
-Image=localhost/zombieauth-cluster-status:latest
+Image=ghcr.io/hodlontoyourbutts/cluster-status:latest
 Label=traefik.enable=true
 Label=traefik.http.routers.__INSTANCE_ID__-couchdb-status.rule=Host(`__STATUS_FQDN__`)
 Label=traefik.http.services.__INSTANCE_ID__-couchdb-status.loadbalancer.server.port=80
