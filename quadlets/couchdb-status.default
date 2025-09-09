@@ -12,7 +12,6 @@ Label=traefik.enable=true
 Label=traefik.http.routers.__INSTANCE_ID__-couchdb-status.rule=Host(`__STATUS_FQDN__`)
 Label=traefik.http.services.__INSTANCE_ID__-couchdb-status.loadbalancer.server.port=80
 Network=__NETWORK_NAME__
-__COUCHDB_DEPENDENCY__
 
 [Install]
 WantedBy=multi-user.target
@@ -23,4 +22,5 @@ TimeoutStartSec=60
 
 [Unit]
 After=couchdb.service
+__COUCHDB_DEPENDENCY__
 Description=CouchDB Cluster Status Service - __INSTANCE_NAME__

@@ -35,8 +35,6 @@ Network=__NETWORK_NAME__
 Volume=/opt/zombieauth/etc-zombieauth:/etc/zombieauth:Z
 Volume=/opt/zombieauth/tmp:/tmp:Z
 Volume=/opt/zombieauth/var-log:/var/log:Z
-__COUCHDB_DEPENDENCY__
-Requires=couchdb-status.service
 
 [Install]
 WantedBy=multi-user.target
@@ -47,5 +45,7 @@ TimeoutStartSec=300
 
 [Unit]
 After=couchdb.service couchdb-status.service
+__COUCHDB_DEPENDENCY__
+Requires=couchdb-status.service
 Description=ZombieAuth Admin Interface - __INSTANCE_NAME__
 Documentation=https://github.com/your-org/zombieauth
