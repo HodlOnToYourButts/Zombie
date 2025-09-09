@@ -296,13 +296,13 @@ if [ "$BUILD_IMAGES" = true ]; then
     fi
     
     # Build cluster status image if it exists
-    if [ "$GENERATE_ZOMBIEAUTH" = true ] && [ -f "$PROJECT_DIR/cluster-status/Dockerfile" ]; then
+    if [ "$GENERATE_ZOMBIEAUTH" = true ] && [ -f "$PROJECT_DIR/cluster-status-service/Dockerfile" ]; then
         echo "   Building zombieauth-cluster-status:latest..."
-        cd "$PROJECT_DIR/cluster-status"
+        cd "$PROJECT_DIR/cluster-status-service"
         $CONTAINER_CMD build -t localhost/zombieauth-cluster-status:latest .
         echo "✅ Built localhost/zombieauth-cluster-status:latest"
     elif [ "$GENERATE_ZOMBIEAUTH" = true ]; then
-        echo "⚠️  cluster-status/Dockerfile not found - you'll need to build the status image manually"
+        echo "⚠️  cluster-status-service/Dockerfile not found - you'll need to build the status image manually"
     fi
     
     cd "$SCRIPT_DIR"
