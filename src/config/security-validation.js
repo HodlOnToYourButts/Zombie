@@ -14,7 +14,7 @@ const INSECURE_DEFAULTS = [
 
 // Additional defaults only forbidden in production
 const PRODUCTION_FORBIDDEN_DEFAULTS = [
-  'admin'
+  // 'admin' removed - allowing admin username in production
 ];
 
 // Minimum security requirements

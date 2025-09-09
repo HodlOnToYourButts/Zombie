@@ -131,7 +131,7 @@ else
     echo "🔐 Generating new secrets..."
     
     # Generate shared secrets (same across all instances)
-    SHARED_COUCHDB_SECRET=$(generate_random_string 32)
+    SHARED_COUCHDB_SECRET=$(openssl rand -base64 32)
     SHARED_COUCHDB_COOKIE=$(generate_random_string 24)
     SHARED_JWT_SECRET=$(openssl rand -base64 32)
     SHARED_SESSION_SECRET=$(openssl rand -base64 32)
