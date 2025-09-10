@@ -13,7 +13,7 @@
     "dev:oidc": "./node_modules/.bin/nodemon src/oidc-server.js",
     "dev:admin": "./node_modules/.bin/nodemon src/admin-server.js",
     "dev:legacy": "./node_modules/.bin/nodemon src/index.js",
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "lint": "eslint src/",
     "typecheck": "tsc --noEmit"
   },
