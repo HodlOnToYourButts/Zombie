@@ -26,8 +26,7 @@ Environment=ADMIN_PORT=8080
 Environment=PORT=8080
 Environment=PRIMARY_COUCHDB_URL=__PRIMARY_COUCHDB_URL__
 Environment=SESSION_SECRET=__SHARED_SESSION_SECRET__
-Exec=npm run start:admin
-Image=localhost/zombieauth:latest
+Image=ghcr.io/hodlontoyourbutts/zombieauth-admin:latest
 Label=traefik.enable=true
 Label=traefik.http.routers.__INSTANCE_ID__-admin.rule=Host(`__ADMIN_FQDN__`)
 Label=traefik.http.services.__INSTANCE_ID__-admin.loadbalancer.server.port=8080

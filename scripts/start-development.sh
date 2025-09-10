@@ -114,7 +114,11 @@ curl -s "http://$COUCHDB_ADMIN_USER:$COUCHDB_ADMIN_PASSWORD@localhost:$COUCHDB_B
 
 # Create ZombieAuth application user
 echo "Creating ZombieAuth application user..."
-curl -s -X PUT "http://$COUCHDB_ADMIN_USER:$COUCHDB_ADMIN_PASSWORD@localhost:$COUCHDB_BASE_PORT/_users/org.couchdb.user:$ZOMBIEAUTH_USER" \
+echo "DEBUG: Using credentials - User: $ZOMBIEAUTH_USER, Password: $ZOMBIEAUTH_PASSWORD"
+echo "DEBUG: CouchDB Admin - User: $COUCHDB_ADMIN_USER, Password: $COUCHDB_ADMIN_PASSWORD"
+echo "DEBUG: Target URL: http://$COUCHDB_ADMIN_USER:$COUCHDB_ADMIN_PASSWORD@localhost:$COUCHDB_BASE_PORT/_users/org.couchdb.user:$ZOMBIEAUTH_USER"
+
+USER_CREATION_RESPONSE=$(curl -s -X PUT "http://$COUCHDB_ADMIN_USER:$COUCHDB_ADMIN_PASSWORD@localhost:$COUCHDB_BASE_PORT/_users/org.couchdb.user:$ZOMBIEAUTH_USER" \
   -H "Content-Type: application/json" \
   -d "{
     \"_id\": \"org.couchdb.user:$ZOMBIEAUTH_USER\",
@@ -122,15 +126,22 @@ curl -s -X PUT "http://$COUCHDB_ADMIN_USER:$COUCHDB_ADMIN_PASSWORD@localhost:$CO
     \"roles\": [],
     \"type\": \"user\",
     \"password\": \"$ZOMBIEAUTH_PASSWORD\"
-  }" >/dev/null 2>&1 || echo "User may already exist"
+  }")
+echo "DEBUG: User creation response: $USER_CREATION_RESPONSE"
+
+# Test if the user was created successfully by trying to authenticate
+echo "DEBUG: Testing user authentication..."
+AUTH_TEST_RESPONSE=$(curl -s "http://$ZOMBIEAUTH_USER:$ZOMBIEAUTH_PASSWORD@localhost:$COUCHDB_BASE_PORT/_session")
+echo "DEBUG: Authentication test response: $AUTH_TEST_RESPONSE"
 
 # Create/ensure ZombieAuth database exists with proper permissions
 echo "Creating ZombieAuth database..."
-curl -s -X PUT "http://$COUCHDB_ADMIN_USER:$COUCHDB_ADMIN_PASSWORD@localhost:$COUCHDB_BASE_PORT/zombieauth" >/dev/null 2>&1 || echo "Database may already exist"
+DB_CREATION_RESPONSE=$(curl -s -X PUT "http://$COUCHDB_ADMIN_USER:$COUCHDB_ADMIN_PASSWORD@localhost:$COUCHDB_BASE_PORT/zombieauth")
+echo "DEBUG: Database creation response: $DB_CREATION_RESPONSE"
 
 # Set database permissions for ZombieAuth user (make it a database admin)
 echo "Setting database permissions..."
-curl -s -X PUT "http://$COUCHDB_ADMIN_USER:$COUCHDB_ADMIN_PASSWORD@localhost:$COUCHDB_BASE_PORT/zombieauth/_security" \
+PERMISSIONS_RESPONSE=$(curl -s -X PUT "http://$COUCHDB_ADMIN_USER:$COUCHDB_ADMIN_PASSWORD@localhost:$COUCHDB_BASE_PORT/zombieauth/_security" \
   -H "Content-Type: application/json" \
   -d "{
     \"admins\": {
@@ -141,7 +152,13 @@ curl -s -X PUT "http://$COUCHDB_ADMIN_USER:$COUCHDB_ADMIN_PASSWORD@localhost:$CO
       \"names\": [\"$ZOMBIEAUTH_USER\"],
       \"roles\": []
     }
-  }" >/dev/null 2>&1
+  }")
+echo "DEBUG: Permissions response: $PERMISSIONS_RESPONSE"
+
+# Final verification - check if user can access the database
+echo "DEBUG: Final verification - testing database access..."
+DB_ACCESS_TEST=$(curl -s "http://$ZOMBIEAUTH_USER:$ZOMBIEAUTH_PASSWORD@localhost:$COUCHDB_BASE_PORT/zombieauth")
+echo "DEBUG: Database access test response: $DB_ACCESS_TEST"
 
   echo "Cluster setup complete!"
 else

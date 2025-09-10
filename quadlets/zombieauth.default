@@ -27,7 +27,7 @@ Environment=PORT=80
 Environment=PRIMARY_COUCHDB_URL=__PRIMARY_COUCHDB_URL__
 Environment=SESSION_SECRET=__SHARED_SESSION_SECRET__
 Exec=npm run start:oidc
-Image=localhost/zombieauth:latest
+Image=ghcr.io/hodlontoyourbutts/zombieauth:latest
 Label=traefik.enable=true
 Label=traefik.http.routers.__INSTANCE_ID__-oidc.rule=Host(`__OIDC_FQDN__`)
 Label=traefik.http.services.__INSTANCE_ID__-oidc.loadbalancer.server.port=80

@@ -320,14 +320,14 @@ if [ "$BUILD_IMAGES" = true ]; then
     if [ "$BUILD_IMAGES" = true ]; then
         echo "Using container engine: $CONTAINER_CMD"
         
-        # Build main ZombieAuth image
+        # Pull main ZombieAuth image from GHCR
         if [ "$GENERATE_ZOMBIEAUTH" = true ]; then
-            echo "   Building zombieauth:latest..."
-            cd "$PROJECT_DIR"
-            if $CONTAINER_CMD build -t localhost/zombieauth:latest -f Dockerfile .; then
-                echo "✅ Built localhost/zombieauth:latest"
+            echo "   Pulling ghcr.io/hodlontoyourbutts/zombieauth:latest..."
+            if $CONTAINER_CMD pull ghcr.io/hodlontoyourbutts/zombieauth:latest; then
+                echo "✅ Pulled ghcr.io/hodlontoyourbutts/zombieauth:latest"
             else
-                echo "❌ Failed to build zombieauth:latest - continuing with quadlet generation"
+                echo "❌ Failed to pull zombieauth image - continuing with quadlet generation"
+                echo "   You may need to authenticate with GitHub Container Registry"
             fi
         fi
         
@@ -338,6 +338,17 @@ if [ "$BUILD_IMAGES" = true ]; then
                 echo "✅ Pulled ghcr.io/hodlontoyourbutts/cluster-status:latest"
             else
                 echo "❌ Failed to pull cluster-status image - continuing with quadlet generation"
+                echo "   You may need to authenticate with GitHub Container Registry"
+            fi
+        fi
+        
+        # Pull admin interface image from GHCR
+        if [ "$GENERATE_ZOMBIEAUTH" = true ]; then
+            echo "   Pulling ghcr.io/hodlontoyourbutts/zombieauth-admin:latest..."
+            if $CONTAINER_CMD pull ghcr.io/hodlontoyourbutts/zombieauth-admin:latest; then
+                echo "✅ Pulled ghcr.io/hodlontoyourbutts/zombieauth-admin:latest"
+            else
+                echo "❌ Failed to pull zombieauth-admin image - continuing with quadlet generation"
                 echo "   You may need to authenticate with GitHub Container Registry"
             fi
         fi

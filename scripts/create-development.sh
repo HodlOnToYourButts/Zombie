@@ -338,7 +338,7 @@ for i in "${!NAMES_ARRAY[@]}"; do
 
   # ZombieAuth Admin Instance - $INSTANCE_NAME
   zombieauth-admin$((i+1)):
-    build: ..
+    image: ghcr.io/hodlontoyourbutts/zombieauth-admin:latest
     container_name: zombieauth-admin-$INSTANCE_NAME
     depends_on:
       - couchdb$((i+1))
@@ -369,12 +369,8 @@ for i in "${!NAMES_ARRAY[@]}"; do
       - DEFAULT_CLIENT_ID=$DEFAULT_CLIENT_ID
     ports:
       - "$ADMIN_PORT:8080"
-    volumes:
-      - ..:/app
-      - /app/node_modules
     networks:
       - zombieauth
-    command: npm run start:admin
     restart: unless-stopped
 
 EOF
