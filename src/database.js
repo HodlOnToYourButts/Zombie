@@ -232,12 +232,15 @@ class Database {
         throw new Error('DEFAULT_CLIENT_ID must follow format "client_<32_hex_chars>" to match auto-generated client IDs. Generate with: openssl rand -hex 16');
       }
       
-      // All possible redirect URIs for all instances (admin servers on ports 4000+)
-      const allRedirectUris = [
-        'http://localhost:4000/callback',  // Node1 admin
-        'http://localhost:4001/callback',  // Node2 admin  
-        'http://localhost:4002/callback'   // Node3 admin
-      ];
+      // Get redirect URIs from environment variable or use defaults
+      const redirectUriEnv = process.env.DEFAULT_CLIENT_REDIRECT_URIS;
+      const allRedirectUris = redirectUriEnv 
+        ? redirectUriEnv.split(',').map(uri => uri.trim())
+        : [
+            'http://localhost:4000/callback',  // Node1 admin
+            'http://localhost:4001/callback',  // Node2 admin  
+            'http://localhost:4002/callback'   // Node3 admin
+          ];
       
       // Check if shared client already exists
       const existingClient = await Client.findByClientId(sharedClientId);
