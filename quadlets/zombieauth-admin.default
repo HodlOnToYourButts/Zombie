@@ -1,18 +1,25 @@
 # ZombieAuth Admin Interface
 # Generated from template - do not edit directly
+#
+# SECRETS SETUP:
+# Create /etc/containers/systemd/secrets/zombieauth with:
+# ADMIN_CLIENT_SECRET=your_admin_client_secret
+# ADMIN_PASSWORD=your_admin_password  
+# COUCHDB_PASSWORD=your_couchdb_password
+# COUCHDB_SECRET=your_couchdb_secret
+# JWT_SECRET=your_jwt_secret
+# SESSION_SECRET=your_session_secret
+#
+# Set permissions: chmod 600 /etc/containers/systemd/secrets/zombieauth
 
 [Container]
 ContainerName=zombieauth-admin
-Environment=ADMIN_CLIENT_SECRET=__SHARED_ADMIN_CLIENT_SECRET__
-Environment=ADMIN_PASSWORD=__ADMIN_PASSWORD__
 Environment=ADMIN_USERNAME=admin
 Environment=ALLOWED_ORIGINS=__ALLOWED_ORIGINS__
 Environment=CLUSTER_INSTANCES=__CLUSTER_INSTANCES__
 Environment=CLUSTER_STATUS_URL=__STATUS_URL__
 Environment=COUCHDB_DATABASE=zombieauth
 Environment=COUCHDB_NODE_MAPPING=__COUCHDB_NODE_MAPPING__
-Environment=COUCHDB_PASSWORD=__ZOMBIEAUTH_PASSWORD__
-Environment=COUCHDB_SECRET=__SHARED_COUCHDB_SECRET__
 Environment=COUCHDB_USER=__ZOMBIEAUTH_USER__
 Environment=DEFAULT_CLIENT_ID=__SHARED_CLIENT_ID__
 Environment=ENABLE_TEST_ENDPOINTS=false
@@ -20,12 +27,11 @@ Environment=INSTANCE_ID=__INSTANCE_ID__
 Environment=INSTANCE_LOCATION=__INSTANCE_LOCATION__
 Environment=INSTANCE_NAME=__INSTANCE_DISPLAY_NAME__
 Environment=ISSUER=__ISSUER_URL__
-Environment=JWT_SECRET=__SHARED_JWT_SECRET__
 Environment=NODE_ENV=production
 Environment=ADMIN_PORT=8080
 Environment=PORT=8080
 Environment=PRIMARY_COUCHDB_URL=__PRIMARY_COUCHDB_URL__
-Environment=SESSION_SECRET=__SHARED_SESSION_SECRET__
+Secret=zombieauth,type=env
 Image=ghcr.io/hodlontoyourbutts/zombieauth-admin:latest
 Label=traefik.enable=true
 Label=traefik.http.routers.__INSTANCE_ID__-admin.rule=Host(`__ADMIN_FQDN__`)

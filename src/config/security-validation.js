@@ -30,14 +30,21 @@ const SECURITY_REQUIREMENTS = {
   DEFAULT_CLIENT_ID: { pattern: /^client_[a-fA-F0-9]{32}$/ }
 };
 
-function validateSecurityConfiguration() {
+function validateSecurityConfiguration(serverType = 'full') {
   console.log('🔐 Validating security configuration...');
   
   const errors = [];
   const warnings = [];
   
-  // Check required environment variables
-  const requiredVars = Object.keys(SECURITY_REQUIREMENTS);
+  // Define which secrets are needed for which server types
+  const serverRequirements = {
+    full: Object.keys(SECURITY_REQUIREMENTS), // OIDC server needs all
+    admin: ['ADMIN_USERNAME', 'ADMIN_PASSWORD', 'COUCHDB_USER', 'COUCHDB_PASSWORD', 'ADMIN_CLIENT_SECRET', 'SESSION_SECRET', 'DEFAULT_CLIENT_ID'], // Admin only needs these
+    minimal: ['ADMIN_USERNAME', 'ADMIN_PASSWORD', 'COUCHDB_USER', 'COUCHDB_PASSWORD'] // Minimal validation
+  };
+  
+  // Check required environment variables based on server type
+  const requiredVars = serverRequirements[serverType] || serverRequirements.full;
   
   for (const varName of requiredVars) {
     const value = process.env[varName];

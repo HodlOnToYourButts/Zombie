@@ -1,12 +1,20 @@
 # CouchDB Instance for ZombieAuth
 # Generated from template - do not edit directly
+#
+# SECRETS SETUP:
+# Create /etc/containers/systemd/secrets/couchdb with:
+# COUCHDB_USER=your_couchdb_admin_user
+# COUCHDB_PASSWORD=your_couchdb_admin_password
+# COUCHDB_SECRET=your_couchdb_secret
+# COUCHDB_COOKIE=your_couchdb_cookie
 
 [Container]
 ContainerName=couchdb
-Environment=COUCHDB_PASSWORD=__COUCHDB_ADMIN_PASSWORD__
-Environment=COUCHDB_SECRET=__SHARED_COUCHDB_SECRET__
-Environment=COUCHDB_USER=__COUCHDB_ADMIN_USER__
-Environment=ERL_FLAGS=-setcookie __SHARED_COUCHDB_COOKIE__ -name couchdb@__COUCHDB_NODE_NAME__ -kernel inet_dist_listen_min 9100 -kernel inet_dist_listen_max 9200
+Environment=ERL_FLAGS=-setcookie ${COUCHDB_COOKIE} -name couchdb@__COUCHDB_NODE_NAME__ -kernel inet_dist_listen_min 9100 -kernel inet_dist_listen_max 9200
+Secret=couchdb,type=env,target=COUCHDB_USER
+Secret=couchdb,type=env,target=COUCHDB_PASSWORD
+Secret=couchdb,type=env,target=COUCHDB_SECRET
+Secret=couchdb,type=env,target=COUCHDB_COOKIE
 Image=docker.io/couchdb:3.3
 Network=__NETWORK_NAME__
 PublishPort=5984:5984

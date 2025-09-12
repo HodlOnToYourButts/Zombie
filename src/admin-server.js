@@ -2,7 +2,7 @@ require('dotenv').config();
 
 // CRITICAL: Validate security configuration before starting
 const { validateSecurityConfiguration } = require('./config/security-validation');
-validateSecurityConfiguration();
+validateSecurityConfiguration('admin');
 
 const express = require('express');
 const cors = require('cors');
@@ -44,9 +44,10 @@ function formatUptime(seconds) {
 }
 
 // Trust proxy headers to get real client IP in containerized environments  
-// In development, be more specific about proxy trust to avoid rate limiter warnings
+// Be specific about proxy trust to avoid rate limiter warnings
 if (process.env.NODE_ENV === 'production') {
-  app.set('trust proxy', true);
+  // Trust proxies from private IP ranges (containers, load balancers)
+  app.set('trust proxy', ['127.0.0.1', '::1', '10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16']);
 } else {
   app.set('trust proxy', ['127.0.0.1', '::1']); // Trust localhost only in development
 }
