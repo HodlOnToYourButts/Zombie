@@ -420,7 +420,7 @@ function redirectWithError(res, redirectUri, state, error, errorDescription) {
 
 // User Registration Routes
 router.get('/register', (req, res) => {
-  const returnUrl = req.query.returnUrl || req.get('Referer') || '/admin/login';
+  const returnUrl = req.query.returnUrl || req.get('Referer') || '/login';
   res.render('register', {
     layout: false,
     error: req.query.error,
@@ -432,7 +432,7 @@ router.get('/register', (req, res) => {
 router.post('/register', validationRules.register, handleValidationErrors, async (req, res) => {
   try {
     const { username, email, password, confirmPassword, returnUrl } = req.body;
-    const finalReturnUrl = returnUrl || req.get('Referer') || '/admin/login';
+    const finalReturnUrl = returnUrl || req.get('Referer') || '/login';
     
     // Validate inputs
     if (!username || !email || !password || !confirmPassword) {
@@ -530,9 +530,9 @@ router.post('/register', validationRules.register, handleValidationErrors, async
   }
 });
 
-// General login route - redirects to admin login
+// General login route 
 router.get('/login', (req, res) => {
-  res.redirect('/admin/login');
+  res.render('login', { layout: false });
 });
 
 module.exports = router;

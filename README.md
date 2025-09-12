@@ -4,17 +4,15 @@ A lightweight, distributed OAuth2/OpenID Connect authentication server designed 
 
 ## Overview
 
-ZombieAuth is a Keycloak alternative that provides OAuth2/OpenID Connect authentication services with a focus on high availability and partition tolerance. Built with CouchDB as the backend, it supports multi-instance clustering where each node can operate independently during network partitions while maintaining eventual consistency when connectivity is restored.
+ZombieAuth is a lightweight OAuth2/OpenID Connect authentication server that provides authentication services with a focus on simplicity and reliability. Built with CouchDB as the backend, it supports distributed deployments with active-active replication where each instance can operate independently.
 
 ## Key Features
 
 - **🔐 OAuth2 & OpenID Connect**: Full compliance with OAuth2 and OpenID Connect specifications
-- **🌐 Distributed Architecture**: Multi-instance clustering with CouchDB master-master replication
-- **⚡ Partition Tolerance**: Each instance remains fully operational during network isolation
-- **🔧 Conflict Resolution**: Intelligent merge strategies for handling data conflicts after partition recovery
-- **👥 User Management**: Complete user lifecycle management with admin interface
-- **🎫 Session Management**: Distributed session handling across cluster nodes
-- **🚀 Easy Deployment**: Automated development and production deployment scripts
+- **🌐 Distributed Architecture**: Multiple instances with CouchDB active-active replication
+- **⚡ High Availability**: Each instance remains fully operational during network issues
+- **👥 User Management**: Complete user lifecycle management through OIDC flows
+- **🎫 Session Management**: Distributed session handling across instances
 - **🛡️ Security Hardened**: Rate limiting, input validation, CORS protection, and CSRF protection
 
 ## Architecture
@@ -22,9 +20,9 @@ ZombieAuth is a Keycloak alternative that provides OAuth2/OpenID Connect authent
 ZombieAuth consists of multiple instances that can be deployed across different geographic locations. Each instance:
 
 - Maintains a local CouchDB database for users and sessions
-- Can handle all authentication operations independently
-- Syncs with other instances when network connectivity allows
-- Resolves conflicts intelligently when partitions are healed
+- Can handle all OIDC authentication operations independently
+- Syncs with other instances through CouchDB active-active replication
+- Provides consistent authentication across all instances
 
 ### Example Deployment Scenario
 
@@ -32,7 +30,7 @@ ZombieAuth consists of multiple instances that can be deployed across different 
 - **Data Center 2**: Secondary instance for redundancy  
 - **Home Lab**: Personal instance for local services
 
-If the home lab loses internet connectivity, it continues to authenticate local users. When connectivity is restored, any conflicting changes are detected and resolved through the admin interface.
+If the home lab loses internet connectivity, it continues to authenticate local users. When connectivity is restored, data syncs automatically through CouchDB replication.
 
 ## Quick Start
 
@@ -49,130 +47,59 @@ If the home lab loses internet connectivity, it continues to authenticate local 
    npm install
    ```
 
-3. **Generate development configuration**:
+3. **Set up environment variables**:
    ```bash
-   ./scripts/create-development.sh
+   cp .env.example .env
+   # Edit .env with your configuration
    ```
 
-4. **Start the development cluster**:
+4. **Start the server**:
    ```bash
-   ./scripts/start-development.sh
+   npm start
    ```
-
-5. **Access the admin interface**:
-   - **Node 1**: http://localhost:3000/admin
-   - **Node 2**: http://localhost:3001/admin  
-   - **Node 3**: http://localhost:3002/admin
-   - **Credentials**: admin / admin
 
 ### Production Setup
 
-1. **Generate production configuration**:
+1. **Set up production environment**:
    ```bash
-   ./scripts/create-production.sh --instances 3 --names node1,node2,node3 --domains auth1.example.com,auth2.example.com,auth3.example.com
+   cp .env.example .env.production
+   # Configure production environment variables
    ```
 
-2. **Deploy to each server**:
+2. **Deploy with your preferred method**:
    ```bash
-   # On each server, copy the appropriate instance directory
-   sudo cp production/node1/* /etc/containers/systemd/
-   sudo systemctl daemon-reload
-   sudo systemctl start couchdb.service zombieauth.service
+   # Example with systemd
+   sudo cp zombieauth.service /etc/systemd/system/
+   sudo systemctl enable zombieauth
+   sudo systemctl start zombieauth
    ```
 
-## Deployment Scripts
+## Configuration
 
-### Development Scripts
+ZombieAuth uses environment variables for configuration:
 
-- **`./scripts/create-development.sh`**: Generates development configuration
-  - Creates `development/docker-compose.yml` with dynamic instance count
-  - Generates `development/development.env` with secure secrets
-  - Options: `--instances`, `--names`, `--base-port`, `--regenerate-secrets`
+- **Database**: CouchDB connection settings
+- **Security**: JWT secrets, session configuration
+- **OIDC**: Client settings and endpoints
+- **Network**: CORS origins, rate limiting
 
-- **`./scripts/start-development.sh`**: Starts development cluster
-  - Sets up CouchDB cluster with automatic node discovery
-  - Creates application users and databases
-  - Starts all services with proper dependencies
+## OIDC Endpoints
 
-### Production Scripts
+ZombieAuth provides standard OIDC endpoints:
 
-- **`./scripts/create-production.sh`**: Generates production systemd quadlets
-  - Creates systemd container files for each instance
-  - Generates secure secrets and configurations
-  - Options: `--instances`, `--names`, `--domains`, `--output-dir`
-
-## Configuration Options
-
-### Development Configuration
-
-The development setup automatically generates secure configurations including:
-
-- **CouchDB credentials**: Admin and application user passwords
-- **JWT secrets**: Token signing keys
-- **Session secrets**: Session encryption keys  
-- **Client IDs**: OAuth2 client identifiers
-- **Cluster mapping**: Instance discovery and health monitoring
-
-### Production Configuration
-
-Production deployments include additional security features:
-
-- **CORS origins**: Restricted to configured domains
-- **Rate limiting**: Protection against brute force attacks
-- **Input validation**: Comprehensive request sanitization
-- **Secure defaults**: Production-hardened configurations
-
-### Customization
-
-Both scripts support customization:
-
-```bash
-# Development with custom configuration
-./scripts/create-development.sh --instances 5 --names dc1,dc2,dc3,home,backup --base-port 4000
-
-# Production with custom domains
-./scripts/create-production.sh --domains auth.company.com,auth-eu.company.com,auth-asia.company.com
-```
-
-## Conflict Resolution
-
-When network partitions heal, ZombieAuth detects conflicts through the admin interface:
-
-- **User conflicts**: Users created with the same email on different instances
-- **Role conflicts**: Different role assignments for the same user
-- **Session conflicts**: Inconsistent session states
-
-Resolution strategies available:
-- **Merge**: Combine conflicting data intelligently
-- **Choose winner**: Select one version over another
-- **Manual review**: Flag for administrator decision
-
-## Admin Interface Features
-
-- **📊 Dashboard**: Cluster health and statistics
-- **👥 User Management**: Create, edit, and manage users
-- **🎫 Session Management**: View and invalidate user sessions
-- **🔧 Client Management**: OAuth2 client configuration
-- **⚠️ Conflict Resolution**: Handle data conflicts after partitions
-- **📈 Activity Logs**: Audit trail of administrative actions
+- **Authorization**: `/auth`
+- **Token**: `/token`
+- **UserInfo**: `/userinfo`
+- **JWKS**: `/.well-known/jwks.json`
+- **Discovery**: `/.well-known/openid-configuration`
 
 ## Development
 
-- **`npm start`**: Start single instance
+- **`npm start`**: Start the server
 - **`npm run dev`**: Start with auto-reload
 - **`npm test`**: Run test suite  
 - **`npm run lint`**: Check code style
 - **`npm run typecheck`**: TypeScript validation
-
-## Network Partition Testing
-
-Test partition tolerance with the included script:
-
-```bash
-./scripts/test-network-partition.sh
-```
-
-This simulates network failures by stopping containers and demonstrates how the cluster handles partitions and recovery.
 
 ## Security Features
 
@@ -186,9 +113,8 @@ This simulates network failures by stopping containers and demonstrates how the 
 
 ## Documentation
 
-- **[MULTI-INSTANCE.md](MULTI-INSTANCE.md)**: Detailed clustering and replication documentation
-- **Admin Interface**: Built-in help and documentation
-- **API Documentation**: Available at `/admin/api` endpoints
+- **Environment Configuration**: See `.env.example` for all available options
+- **OIDC Specification**: Follows standard OAuth2/OpenID Connect protocols
 
 ## License
 

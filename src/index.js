@@ -14,17 +14,14 @@ const path = require('path');
 const rateLimit = require('express-rate-limit');
 const slowDown = require('express-slow-down');
 const { sanitizeInput } = require('./middleware/validation');
-const csrf = require('csurf');
 
 const database = require('./database');
 const authRoutes = require('./routes/auth');
-const adminRoutes = require('./routes/admin');
-const adminApiRoutes = require('./routes/admin-api');
 const sessionManager = require('./utils/session-manager');
 const SyncMonitor = require('./services/sync-monitor');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.OIDC_PORT || process.env.PORT || 80;
 
 // Track server startup time for uptime calculation
 const SERVER_START_TIME = Date.now();
@@ -46,7 +43,13 @@ function formatUptime(seconds) {
 }
 
 // Trust proxy headers to get real client IP in containerized environments
-app.set('trust proxy', true);
+// Be specific about proxy trust to avoid rate limiter warnings
+if (process.env.NODE_ENV === 'production') {
+  // Trust proxies from private IP ranges (containers, load balancers)
+  app.set('trust proxy', ['127.0.0.1', '::1', '10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16']);
+} else {
+  app.set('trust proxy', ['127.0.0.1', '::1']); // Trust localhost only in development
+}
 
 // View engine setup
 app.engine('html', engine({ 
@@ -72,17 +75,10 @@ app.engine('html', engine({
 app.set('view engine', 'html');
 app.set('views', path.join(__dirname, 'views'));
 
-// Middleware
+// Middleware - minimal security headers for OIDC endpoints
 app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      fontSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
-    }
-  }
+  contentSecurityPolicy: false, // Not needed for API endpoints
+  crossOriginEmbedderPolicy: false
 }));
 
 // Rate limiting configuration
@@ -130,12 +126,12 @@ app.use(methodOverride(function (req, res) {
 }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Session configuration
+// Session configuration - minimal for OIDC
 const sessionStore = new session.MemoryStore();
 sessionManager.setSessionStore(sessionStore);
 
 app.use(session({
-  name: `zombieauth-session-${process.env.INSTANCE_ID || 'default'}`,
+  name: `zombieauth-oidc-session-${process.env.INSTANCE_ID || 'default'}`,
   secret: process.env.SESSION_SECRET || 'your-session-secret-change-in-production',
   resave: false,
   saveUninitialized: false,
@@ -147,33 +143,11 @@ app.use(session({
   }
 }));
 
-// CSRF protection for form endpoints only (not for OAuth2 API endpoints)
-const csrfProtection = csrf({ 
-  cookie: false, // Use session storage
-  ignoreMethods: ['GET', 'HEAD', 'OPTIONS']
-});
-
-// Apply CSRF protection to admin routes only
-app.use('/admin', csrfProtection);
-
-// Add CSRF token to templates for admin routes
-app.use('/admin', (req, res, next) => {
-  res.locals.csrfToken = req.csrfToken();
-  next();
-});
-
-// Add OIDC user to all templates (must be after session middleware)
-app.use((req, res, next) => {
-  res.locals.oidc_user = req.oidc_user || null;
-  next();
-});
-
-// Basic info endpoint (before auth routes)
+// Basic info endpoint
 app.get('/', (req, res) => {
   res.json({ 
-    message: 'ZombieAuth - Distributed OAuth2/OpenID Connect Server',
+    message: 'ZombieAuth - OAuth2/OpenID Connect Server',
     status: 'running',
-    admin_url: `${req.protocol}://${req.get('host')}/admin`,
     oauth2: {
       authorization_endpoint: `${req.protocol}://${req.get('host')}/auth`,
       token_endpoint: `${req.protocol}://${req.get('host')}/token`,
@@ -191,7 +165,7 @@ app.get('/health', async (req, res) => {
   
   res.json({ 
     status: dbStatus.connected ? 'ok' : 'degraded', 
-    service: 'ZombieAuth',
+    service: 'ZombieAuth OIDC',
     version: '0.1.0',
     timestamp: new Date().toISOString(),
     uptime: {
@@ -202,68 +176,6 @@ app.get('/health', async (req, res) => {
     database: dbStatus
   });
 });
-
-// Test endpoints for development and testing (disabled in production)
-if (process.env.ENABLE_TEST_ENDPOINTS === 'true') {
-  console.log('WARNING: Test endpoints enabled - disable in production by removing ENABLE_TEST_ENDPOINTS=true');
-  
-  // Test endpoint for conflict statistics
-  app.get('/test/conflicts/stats', async (req, res) => {
-    try {
-      const ConflictDetector = require('./services/conflict-detector');
-      const conflictDetector = new ConflictDetector();
-      await conflictDetector.initialize();
-      const conflicts = await conflictDetector.getAllConflicts();
-      const stats = {
-        total: conflicts.length,
-        requiresManualResolution: conflicts.filter(c => c.requiresManualResolution).length
-      };
-      res.json({ stats });
-    } catch (error) {
-      console.error('Test conflict stats error:', error);
-      res.json({ stats: { total: 0, requiresManualResolution: 0 } });
-    }
-  });
-
-  // Test endpoint for replication status
-  app.get('/test/replication/status', async (req, res) => {
-    try {
-      const replicationStatus = await database.getReplicationStatus();
-      res.json({ replication: replicationStatus });
-    } catch (error) {
-      console.error('Test replication status error:', error);
-      res.json({ replication: [] });
-    }
-  });
-
-  // Test endpoint for conflict details
-  app.get('/test/conflicts/users', async (req, res) => {
-    try {
-      const ConflictDetector = require('./services/conflict-detector');
-      const conflictDetector = new ConflictDetector();
-      await conflictDetector.initialize();
-      const conflicts = await conflictDetector.getUserConflicts();
-      res.json({ conflicts });
-    } catch (error) {
-      console.error('Test user conflicts error:', error);
-      res.json({ conflicts: [] });
-    }
-  });
-
-  // Test endpoint for all conflicts
-  app.get('/test/conflicts', async (req, res) => {
-    try {
-      const ConflictDetector = require('./services/conflict-detector');
-      const conflictDetector = new ConflictDetector();
-      await conflictDetector.initialize();
-      const conflicts = await conflictDetector.getAllConflicts();
-      res.json({ conflicts });
-    } catch (error) {
-      console.error('Test all conflicts error:', error);
-      res.json({ conflicts: [] });
-    }
-  });
-}
 
 // OAuth2/OpenID Connect discovery endpoint
 app.get('/.well-known/openid_configuration', (req, res) => {
@@ -282,24 +194,25 @@ app.get('/.well-known/openid_configuration', (req, res) => {
   });
 });
 
-// Apply rate limiting to specific routes
-app.use('/admin/login', authLimiter, speedLimiter);
-app.use('/login', authLimiter, speedLimiter);
-app.use('/register', authLimiter, speedLimiter);
-app.use('/oauth', authLimiter, speedLimiter);
-app.use('/token', authLimiter);
-app.use('/authorize', authLimiter);
+// Apply rate limiting only in production
+if (process.env.NODE_ENV === 'production') {
+  app.use('/login', authLimiter, speedLimiter);
+  app.use('/register', authLimiter, speedLimiter);
+  app.use('/oauth', authLimiter, speedLimiter);
+  app.use('/token', authLimiter);
+  app.use('/authorize', authLimiter);
+  app.use('/auth', authLimiter, speedLimiter);
+  app.use('/', generalLimiter);
+  console.log('🔒 Rate limiting enabled for production');
+} else {
+  console.log('⚠️  Rate limiting disabled for development');
+}
 
-// Apply general rate limiting to API routes
-app.use('/admin/api', generalLimiter);
-
-// Routes - auth routes must come last to avoid conflicts
-app.use('/admin/api', adminApiRoutes);
-app.use('/admin', adminRoutes);
+// Auth routes (OIDC endpoints only)
 app.use('/', authRoutes);
 
 // Initialize database and start server
-async function startServer() {
+async function startOIDCServer() {
   try {
     console.log('Initializing database connection...');
     await database.initialize();
@@ -311,14 +224,14 @@ async function startServer() {
     syncMonitor.startMonitoring(30000); // Check every 30 seconds
     
     app.listen(PORT, () => {
-      console.log(`ZombieAuth server running on port ${PORT}`);
+      console.log(`ZombieAuth OIDC server running on port ${PORT}`);
       console.log(`Health check: http://localhost:${PORT}/health`);
       console.log(`OpenID Config: http://localhost:${PORT}/.well-known/openid_configuration`);
     });
   } catch (error) {
-    console.error('Failed to start server:', error.message);
+    console.error('Failed to start OIDC server:', error.message);
     process.exit(1);
   }
 }
 
-startServer();
+startOIDCServer();
