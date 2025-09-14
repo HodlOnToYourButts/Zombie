@@ -17,14 +17,12 @@ const PRODUCTION_FORBIDDEN_DEFAULTS = [
   // 'admin' removed - allowing admin username in production
 ];
 
-// Minimum security requirements
+// Minimum security requirements for ZombieAuth OIDC server
 const SECURITY_REQUIREMENTS = {
   COUCHDB_USER: { minLength: 5, pattern: /^[a-zA-Z0-9_-]+$/ },
   COUCHDB_PASSWORD: { minLength: 12, requireComplex: false },
   ZOMBIEAUTH_JWT_SECRET: { minLength: 32, entropy: 'high' },
-  ZOMBIEAUTH_SESSION_SECRET: { minLength: 32, entropy: 'high' },
-  ADMIN_CLIENT_SECRET: { minLength: 32, entropy: 'high' },
-  DEFAULT_CLIENT_ID: { pattern: /^client_[a-fA-F0-9]{32}$/ }
+  ZOMBIEAUTH_SESSION_SECRET: { minLength: 32, entropy: 'high' }
 };
 
 function validateSecurityConfiguration(serverType = 'full') {
