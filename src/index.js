@@ -81,10 +81,10 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false
 }));
 
-// Rate limiting configuration
+// Rate limiting configuration - balanced for usability and security
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // Limit each IP to 5 requests per windowMs for auth endpoints
+  max: 50, // Allow 50 auth attempts per 15 minutes (much more reasonable for normal usage)
   message: { error: 'Too many authentication attempts, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -92,7 +92,7 @@ const authLimiter = rateLimit({
 
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes  
-  max: 100, // Limit each IP to 100 requests per windowMs for general endpoints
+  max: 1000, // Allow 1000 requests per 15 minutes for general endpoints (very generous)
   message: { error: 'Too many requests, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -100,9 +100,9 @@ const generalLimiter = rateLimit({
 
 const speedLimiter = slowDown({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  delayAfter: 2, // Allow 2 requests per windowMs without delay
-  delayMs: 500, // Add 500ms delay per request after delayAfter
-  maxDelayMs: 20000, // Maximum delay of 20 seconds
+  delayAfter: 20, // Allow 20 requests per 15 minutes without delay (much more reasonable)
+  delayMs: 250, // Add 250ms delay per request after delayAfter (reduced delay)
+  maxDelayMs: 5000, // Maximum delay of 5 seconds (much more reasonable)
 });
 
 // CORS configuration - restrict origins in production
