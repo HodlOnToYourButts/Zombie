@@ -21,7 +21,7 @@ const sessionManager = require('./utils/session-manager');
 const SyncMonitor = require('./services/sync-monitor');
 
 const app = express();
-const PORT = process.env.OIDC_PORT || process.env.PORT || 80;
+const PORT = 8080;
 
 // Track server startup time for uptime calculation
 const SERVER_START_TIME = Date.now();
