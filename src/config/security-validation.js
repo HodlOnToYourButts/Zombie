@@ -19,14 +19,11 @@ const PRODUCTION_FORBIDDEN_DEFAULTS = [
 
 // Minimum security requirements
 const SECURITY_REQUIREMENTS = {
-  ADMIN_USERNAME: { minLength: process.env.NODE_ENV === 'development' ? 3 : 5, pattern: /^[a-zA-Z0-9_-]+$/ },
-  ADMIN_PASSWORD: { minLength: process.env.NODE_ENV === 'development' ? 3 : 12, requireComplex: false },
   COUCHDB_USER: { minLength: 5, pattern: /^[a-zA-Z0-9_-]+$/ },
   COUCHDB_PASSWORD: { minLength: 12, requireComplex: false },
-  JWT_SECRET: { minLength: 32, entropy: 'high' },
-  SESSION_SECRET: { minLength: 32, entropy: 'high' },
+  ZOMBIEAUTH_JWT_SECRET: { minLength: 32, entropy: 'high' },
+  ZOMBIEAUTH_SESSION_SECRET: { minLength: 32, entropy: 'high' },
   ADMIN_CLIENT_SECRET: { minLength: 32, entropy: 'high' },
-  COUCHDB_SECRET: { minLength: 32, entropy: 'high' },
   DEFAULT_CLIENT_ID: { pattern: /^client_[a-fA-F0-9]{32}$/ }
 };
 
@@ -39,8 +36,7 @@ function validateSecurityConfiguration(serverType = 'full') {
   // Define which secrets are needed for which server types
   const serverRequirements = {
     full: Object.keys(SECURITY_REQUIREMENTS), // OIDC server needs all
-    admin: ['ADMIN_USERNAME', 'ADMIN_PASSWORD', 'COUCHDB_USER', 'COUCHDB_PASSWORD', 'ADMIN_CLIENT_SECRET', 'SESSION_SECRET', 'DEFAULT_CLIENT_ID'], // Admin only needs these
-    minimal: ['ADMIN_USERNAME', 'ADMIN_PASSWORD', 'COUCHDB_USER', 'COUCHDB_PASSWORD'] // Minimal validation
+    minimal: ['COUCHDB_USER', 'COUCHDB_PASSWORD'] // Minimal validation
   };
   
   // Check required environment variables based on server type

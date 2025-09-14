@@ -10,7 +10,7 @@ class Database {
     }
     
     // Primary CouchDB URL for this instance
-    const primaryUrl = process.env.PRIMARY_COUCHDB_URL || 'http://localhost:5984';
+    const primaryUrl = process.env.COUCHDB_URL || 'http://localhost:5984';
     this.primaryCouchUrl = primaryUrl.replace('://', `://${username}:${password}@`);
     
     // Peer CouchDB URLs for replication

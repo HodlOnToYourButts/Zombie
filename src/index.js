@@ -44,7 +44,7 @@ function formatUptime(seconds) {
 
 // Trust proxy headers to get real client IP in containerized environments
 // Be specific about proxy trust to avoid rate limiter warnings
-if (process.env.NODE_ENV === 'production') {
+if ((process.env.ZOMBIEAUTH_MODE || process.env.NODE_ENV) === 'production') {
   // Trust proxies from private IP ranges (containers, load balancers)
   app.set('trust proxy', ['127.0.0.1', '::1', '10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16']);
 } else {
@@ -107,7 +107,7 @@ const speedLimiter = slowDown({
 
 // CORS configuration - restrict origins in production
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
+  origin: (process.env.ZOMBIEAUTH_MODE || process.env.NODE_ENV) === 'production' 
     ? process.env.ALLOWED_ORIGINS?.split(',') || false
     : true, // Allow all origins in development
   credentials: true,
@@ -132,12 +132,12 @@ sessionManager.setSessionStore(sessionStore);
 
 app.use(session({
   name: `zombieauth-oidc-session-${process.env.INSTANCE_ID || 'default'}`,
-  secret: process.env.SESSION_SECRET || 'your-session-secret-change-in-production',
+  secret: process.env.ZOMBIEAUTH_SESSION_SECRET || 'your-session-secret-change-in-production',
   resave: false,
   saveUninitialized: false,
   store: sessionStore,
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
+    secure: (process.env.ZOMBIEAUTH_MODE || process.env.NODE_ENV) === 'production',
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
@@ -195,7 +195,7 @@ app.get('/.well-known/openid_configuration', (req, res) => {
 });
 
 // Apply rate limiting only in production
-if (process.env.NODE_ENV === 'production') {
+if ((process.env.ZOMBIEAUTH_MODE || process.env.NODE_ENV) === 'production') {
   app.use('/login', authLimiter, speedLimiter);
   app.use('/register', authLimiter, speedLimiter);
   app.use('/oauth', authLimiter, speedLimiter);

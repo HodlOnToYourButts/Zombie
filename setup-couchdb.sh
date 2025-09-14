@@ -9,7 +9,7 @@ echo "🚀 ZombieAuth CouchDB Setup"
 echo "=========================="
 echo
 
-# Get configuration from environment or use defaults
+# Get configuration from environment or use defaults  
 COUCHDB_URL=${COUCHDB_URL:-"http://localhost:5984"}
 DB_NAME=${COUCHDB_DATABASE:-"zombieauth"}
 APP_USER=${COUCHDB_USER:-"zombieauth"}
@@ -88,7 +88,7 @@ echo "📋 Environment variables for your application:"
 echo "COUCHDB_USER=$APP_USER"
 echo "COUCHDB_PASSWORD=$APP_PASSWORD"
 echo "COUCHDB_DATABASE=$DB_NAME"
-echo "PRIMARY_COUCHDB_URL=$COUCHDB_URL"
+echo "COUCHDB_URL=$COUCHDB_URL"
 echo
 echo "📝 Next steps:"
 echo "1. Add the environment variables above to your .env file"
