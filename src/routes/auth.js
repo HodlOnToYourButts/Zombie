@@ -545,8 +545,8 @@ router.get('/logout', (req, res) => {
       console.error('Error destroying session:', err);
     }
     
-    // Redirect to post_logout_redirect_uri if provided, otherwise to login
-    const redirectUrl = post_logout_redirect_uri || '/login';
+    // Redirect to post_logout_redirect_uri if provided, otherwise to root
+    const redirectUrl = post_logout_redirect_uri || '/';
     res.redirect(redirectUrl);
   });
 });
