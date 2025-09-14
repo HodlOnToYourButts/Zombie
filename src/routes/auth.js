@@ -535,4 +535,20 @@ router.get('/login', (req, res) => {
   res.render('login', { layout: false });
 });
 
+// OIDC logout endpoint
+router.get('/logout', (req, res) => {
+  const post_logout_redirect_uri = req.query.post_logout_redirect_uri;
+  
+  // Destroy session
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Error destroying session:', err);
+    }
+    
+    // Redirect to post_logout_redirect_uri if provided, otherwise to login
+    const redirectUrl = post_logout_redirect_uri || '/login';
+    res.redirect(redirectUrl);
+  });
+});
+
 module.exports = router;
