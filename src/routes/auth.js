@@ -173,8 +173,20 @@ router.get('/auth', validationRules.authorize, handleValidationErrors, async (re
   }
 });
 
-// Token endpoint - exchanges authorization code for tokens
+// Token endpoint - exchanges authorization code for tokens (GET handler for compatibility)
+router.get('/token', validationRules.token, handleValidationErrors, async (req, res) => {
+  // For GET requests, copy query parameters to body format for processing
+  req.body = { ...req.query };
+  return handleTokenRequest(req, res);
+});
+
+// Token endpoint - exchanges authorization code for tokens (POST handler)
 router.post('/token', validationRules.token, handleValidationErrors, async (req, res) => {
+  return handleTokenRequest(req, res);
+});
+
+// Shared token request handler
+async function handleTokenRequest(req, res) {
   try {
     const {
       grant_type,
@@ -336,7 +348,7 @@ router.post('/token', validationRules.token, handleValidationErrors, async (req,
       error_description: 'Internal server error'
     });
   }
-});
+}
 
 // UserInfo endpoint - returns user information for valid access token
 router.get('/userinfo', async (req, res) => {
