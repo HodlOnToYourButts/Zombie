@@ -1,7 +1,7 @@
 {
-  "name": "zombieauth",
+  "name": "zombie",
   "version": "0.1.0",
-  "description": "Lightweight OAuth2/OpenID Connect authentication server with CouchDB backend and distributed clustering support",
+  "description": "Still authenticating when everything else is dead.",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",

@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Minimal CouchDB Setup Script for ZombieAuth
+# Minimal CouchDB Setup Script for Zombie
 # Creates database and application user so main app doesn't need admin credentials
 
 set -e
 
-echo "🚀 ZombieAuth CouchDB Setup"
+echo "🚀 Zombie CouchDB Setup"
 echo "=========================="
 echo
 
@@ -93,4 +93,4 @@ echo
 echo "📝 Next steps:"
 echo "1. Add the environment variables above to your .env file"
 echo "2. Use zombieauth-admin to create clients and users"
-echo "3. Start your ZombieAuth application"
+echo "3. Start your Zombie application"

@@ -1,16 +1,16 @@
-# ZombieAuth Multi-Instance Setup
+# Zombie Multi-Instance Setup
 
-This document describes how to set up and test ZombieAuth's multi-instance, geographically distributed architecture with automatic conflict resolution.
+This document describes how to set up and test Zombie's multi-instance, geographically distributed architecture with automatic conflict resolution.
 
 ## Architecture Overview
 
-ZombieAuth supports a master-master replication setup designed for geographically distributed deployments:
+Zombie supports a master-master replication setup designed for geographically distributed deployments:
 
-- **Datacenter 1**: ZombieAuth instance with dedicated CouchDB
-- **Datacenter 2**: ZombieAuth instance with dedicated CouchDB  
-- **Home Network**: ZombieAuth instance with dedicated CouchDB
+- **Datacenter 1**: Zombie instance with dedicated CouchDB
+- **Datacenter 2**: Zombie instance with dedicated CouchDB
+- **Home Network**: Zombie instance with dedicated CouchDB
 
-Each CouchDB instance maintains bidirectional replication with the others. During network partitions, each location continues operating independently. When connectivity is restored, CouchDB automatically syncs and ZombieAuth provides conflict resolution tools.
+Each CouchDB instance maintains bidirectional replication with the others. During network partitions, each location continues operating independently. When connectivity is restored, CouchDB automatically syncs and Zombie provides conflict resolution tools.
 
 ## Features
 
@@ -43,7 +43,7 @@ Each CouchDB instance maintains bidirectional replication with the others. Durin
 
 This will start:
 - 3 CouchDB instances (ports 5984, 5985, 5986)
-- 3 ZombieAuth instances (ports 3000, 3001, 3002)
+- 3 Zombie instances (ports 3000, 3001, 3002)
 
 ### 2. Access the Admin Interface
 - **DC1**: http://localhost:3000/admin
@@ -240,7 +240,7 @@ curl http://admin:password@localhost:5984/zombieauth/user:example?conflicts=true
 - Verify conflict detection views are created
 
 **Admin interface errors:**
-- Check ZombieAuth logs: `docker logs zombieauth-dc1`
+- Check Zombie logs: `docker logs zombieauth-dc1`
 - Verify OIDC authentication is working
 - Ensure admin user has proper roles
 
@@ -350,11 +350,11 @@ If replication is slow:
 ### Logs Location
 
 **With Docker:**
-- ZombieAuth: `docker logs zombieauth-dc1`
+- Zombie: `docker logs zombieauth-dc1`
 - CouchDB: `docker logs zombieauth-couchdb1`
 
 **With Podman:**
-- ZombieAuth: `podman logs zombieauth-dc1`
+- Zombie: `podman logs zombieauth-dc1`
 - CouchDB: `podman logs zombieauth-couchdb1`
 
 **Or use the container utils:**
@@ -391,6 +391,6 @@ curl -X POST http://localhost:3002/admin/api/users \
 
 ## Conclusion
 
-ZombieAuth's multi-instance architecture provides robust authentication services that can withstand network partitions while maintaining data consistency through intelligent conflict resolution. The system is designed for real-world scenarios where geographic distribution and network reliability are concerns.
+Zombie's multi-instance architecture provides robust authentication services that can withstand network partitions while maintaining data consistency through intelligent conflict resolution. The system is designed for real-world scenarios where geographic distribution and network reliability are concerns.
 
 For questions or issues, check the logs, use the provided testing scripts, and refer to the troubleshooting guide above.

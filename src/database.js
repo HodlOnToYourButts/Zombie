@@ -2,11 +2,11 @@ const nano = require('nano');
 
 class Database {
   constructor() {
-    const username = process.env.COUCHDB_USER || 'zombieauth';
-    const password = process.env.COUCHDB_PASSWORD;
+    const username = process.env.COUCHDB_APP_USER || 'zombieauth';
+    const password = process.env.COUCHDB_APP_PASSWORD;
     
     if (!password) {
-      throw new Error('COUCHDB_PASSWORD environment variable must be set');
+      throw new Error('COUCHDB_APP_PASSWORD environment variable must be set');
     }
     
     // Primary CouchDB URL for this instance
@@ -35,19 +35,19 @@ class Database {
     try {
       // Wait for CouchDB to be ready
       await this.waitForCouchDB();
-      
-      // Connect to the database (should already exist from setup script)
+
+      // Connect to the database (should be set up by couchdb-setup container)
       this.db = this.client.db.use(this.dbName);
       await this.db.info(); // Test if database exists and is accessible
-      
+
       console.log(`Connected to CouchDB database: ${this.dbName} (Instance: ${this.instanceId})`);
       return true;
     } catch (error) {
       console.error('Failed to initialize database:', error.message);
       if (error.statusCode === 404) {
-        console.error('Database not found. Please run ./setup-couchdb.sh first to create the database.');
+        console.error('Database not found. Please ensure couchdb-setup container ran successfully.');
       } else if (error.statusCode === 401) {
-        console.error('Authentication failed. Please check COUCHDB_USER and COUCHDB_PASSWORD environment variables.');
+        console.error('Authentication failed. Please check COUCHDB_APP_USER and COUCHDB_APP_PASSWORD environment variables.');
       }
       throw error;
     }

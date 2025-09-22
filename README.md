@@ -1,10 +1,10 @@
-# ZombieAuth
+# Zombie
 
-A lightweight, distributed OAuth2/OpenID Connect authentication server designed to survive network partitions and remain operational in isolated environments.
+Still authenticating when everything else is dead.
 
 ## Overview
 
-ZombieAuth is a lightweight OAuth2/OpenID Connect authentication server that provides authentication services with a focus on simplicity and reliability. Built with CouchDB as the backend, it supports distributed deployments with active-active replication where each instance can operate independently.
+Zombie is a lightweight OAuth2/OpenID Connect authentication server that provides authentication services with a focus on simplicity and reliability. Built with CouchDB as the backend, it supports distributed deployments with active-active replication where each instance can operate independently.
 
 ## Key Features
 
@@ -17,7 +17,7 @@ ZombieAuth is a lightweight OAuth2/OpenID Connect authentication server that pro
 
 ## Architecture
 
-ZombieAuth consists of multiple instances that can be deployed across different geographic locations. Each instance:
+Zombie consists of multiple instances that can be deployed across different geographic locations. Each instance:
 
 - Maintains a local CouchDB database for users and sessions
 - Can handle all OIDC authentication operations independently
@@ -38,8 +38,8 @@ If the home lab loses internet connectivity, it continues to authenticate local 
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/HodlOnToYourButts/ZombieAuth.git
-   cd ZombieAuth
+   git clone https://github.com/HodlOnToYourButts/Zombie.git
+   cd Zombie
    ```
 
 2. **Install dependencies**:
@@ -76,7 +76,7 @@ If the home lab loses internet connectivity, it continues to authenticate local 
 
 ## Configuration
 
-ZombieAuth uses environment variables for configuration:
+Zombie uses environment variables for configuration:
 
 - **Database**: CouchDB connection settings
 - **Security**: JWT secrets, session configuration
@@ -85,7 +85,7 @@ ZombieAuth uses environment variables for configuration:
 
 ## OIDC Endpoints
 
-ZombieAuth provides standard OIDC endpoints:
+Zombie provides standard OIDC endpoints:
 
 - **Authorization**: `/auth`
 - **Token**: `/token`

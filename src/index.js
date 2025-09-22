@@ -146,7 +146,7 @@ app.use(session({
 // Basic info endpoint
 app.get('/', (req, res) => {
   res.json({ 
-    message: 'ZombieAuth - OAuth2/OpenID Connect Server',
+    message: 'Still authenticating when everything else is dead.',
     status: 'running',
     oauth2: {
       authorization_endpoint: `${req.protocol}://${req.get('host')}/auth`,
@@ -165,7 +165,7 @@ app.get('/health', async (req, res) => {
   
   res.json({ 
     status: dbStatus.connected ? 'ok' : 'degraded', 
-    service: 'ZombieAuth OIDC',
+    service: 'Zombie OIDC',
     version: '0.1.0',
     timestamp: new Date().toISOString(),
     uptime: {
@@ -224,7 +224,7 @@ async function startOIDCServer() {
     syncMonitor.startMonitoring(30000); // Check every 30 seconds
     
     app.listen(PORT, () => {
-      console.log(`ZombieAuth OIDC server running on port ${PORT}`);
+      console.log(`Zombie OIDC server running on port ${PORT}`);
       console.log(`Health check: http://localhost:${PORT}/health`);
       console.log(`OpenID Config: http://localhost:${PORT}/.well-known/openid_configuration`);
     });

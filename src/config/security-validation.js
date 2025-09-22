@@ -17,7 +17,7 @@ const PRODUCTION_FORBIDDEN_DEFAULTS = [
   // 'admin' removed - allowing admin username in production
 ];
 
-// Minimum security requirements for ZombieAuth OIDC server
+// Minimum security requirements for Zombie OIDC server
 const SECURITY_REQUIREMENTS = {
   COUCHDB_USER: { minLength: 5, pattern: /^[a-zA-Z0-9_-]+$/ },
   COUCHDB_PASSWORD: { minLength: 12, requireComplex: false },
@@ -27,7 +27,13 @@ const SECURITY_REQUIREMENTS = {
 
 function validateSecurityConfiguration(serverType = 'full') {
   console.log('🔐 Validating security configuration...');
-  
+
+  // Skip strict validation in development mode
+  if (process.env.DEVELOPMENT_MODE === 'true') {
+    console.log('🛠️  Development mode detected - skipping strict security validation');
+    return true;
+  }
+
   const errors = [];
   const warnings = [];
   

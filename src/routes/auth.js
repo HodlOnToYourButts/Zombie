@@ -121,6 +121,8 @@ router.get('/auth', validationRules.authorize, handleValidationErrors, async (re
         user, client_id, redirect_uri, scopes, nonce
       );
 
+      console.log('Generated authorization code:', authCode.substring(0, 20) + '...');
+
       // Create session
       const session = new Session({
         userId: user._id,
@@ -132,6 +134,7 @@ router.get('/auth', validationRules.authorize, handleValidationErrors, async (re
         expiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString() // 10 minutes
       });
       await session.save();
+      console.log('Created session:', session._id, 'with auth code for user:', user.username);
 
       const redirectUrl = new URL(redirect_uri);
       redirectUrl.searchParams.append('code', authCode);
@@ -233,11 +236,23 @@ async function handleTokenRequest(req, res) {
       }
 
       // Find and invalidate session
+      console.log('Looking for session with auth code:', code.substring(0, 20) + '...');
       const session = await Session.findByAuthCode(code);
-      if (!session || !session.active) {
+      console.log('Session found:', !!session, 'Active:', session?.active, 'Session ID:', session?._id);
+
+      if (!session) {
+        console.log('No session found for authorization code');
         return res.status(400).json({
           error: 'invalid_grant',
-          error_description: 'Authorization code already used or invalid'
+          error_description: 'Authorization code not found'
+        });
+      }
+
+      if (!session.active) {
+        console.log('Session found but not active');
+        return res.status(400).json({
+          error: 'invalid_grant',
+          error_description: 'Authorization code already used'
         });
       }
 

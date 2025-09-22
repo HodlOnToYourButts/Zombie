@@ -1,8 +1,8 @@
-# ZombieAuth Secrets Configuration
+# Zombie Secrets Configuration
 
 ## Overview
 
-ZombieAuth production quadlets use systemd secrets to securely store sensitive environment variables. This prevents secrets from appearing in process lists or system logs.
+Zombie production quadlets use systemd secrets to securely store sensitive environment variables. This prevents secrets from appearing in process lists or system logs.
 
 ## Setting Up Secrets
 
@@ -12,7 +12,7 @@ ZombieAuth production quadlets use systemd secrets to securely store sensitive e
 sudo mkdir -p /etc/containers/systemd/secrets
 ```
 
-### 2. Create the ZombieAuth secrets file
+### 2. Create the Zombie secrets file
 
 Create `/etc/containers/systemd/secrets/zombieauth` with the following content:
 
@@ -75,7 +75,7 @@ openssl rand -base64 64
 
 The quadlets reference secret files as follows:
 
-**ZombieAuth services (OIDC and Admin):**
+**Zombie services (OIDC and Admin):**
 ```ini
 Secret=zombieauth,type=env
 ```
@@ -110,7 +110,7 @@ This loads the entire secret file as environment variables, making all defined v
 ```env
 ADMIN_CLIENT_SECRET=Ab3dF7gH9jKl2MnP5qRs8TuV1wXyZ4cE6fGhI0jKlMnO
 ADMIN_PASSWORD=MySecureAdminPassword123!
-COUCHDB_PASSWORD=ZombieAuth_DB_P@ssw0rd_2024
+COUCHDB_PASSWORD=Zombie_DB_P@ssw0rd_2024
 COUCHDB_SECRET=aB3dE6fG9hI2jK5lM8nP1qR4sT7uV0wX3yZ6aC9eF2gH
 JWT_SECRET=jW7tS3cr3t_F0r_JWT_T0k3nS_Th4t_1s_V3ry_L0ng_4nd_S3cur3_123456789
 SESSION_SECRET=s3ss10n_S3cr3t_F0r_C00k13_S1gn1ng_Th4t_1s_4ls0_V3ry_L0ng
