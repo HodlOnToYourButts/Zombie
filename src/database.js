@@ -2,11 +2,11 @@ const nano = require('nano');
 
 class Database {
   constructor() {
-    const username = process.env.COUCHDB_APP_USER || 'zombieauth';
-    const password = process.env.COUCHDB_APP_PASSWORD;
-    
+    const username = process.env.COUCHDB_USER || 'zombie';
+    const password = process.env.COUCHDB_PASSWORD;
+
     if (!password) {
-      throw new Error('COUCHDB_APP_PASSWORD environment variable must be set');
+      throw new Error('COUCHDB_PASSWORD environment variable must be set');
     }
     
     // Primary CouchDB URL for this instance
@@ -19,7 +19,7 @@ class Database {
       .filter(url => url.trim())
       .map(url => url.trim().replace('://', `://${username}:${password}@`));
     
-    this.dbName = process.env.COUCHDB_DATABASE || 'zombieauth';
+    this.dbName = process.env.COUCHDB_DATABASE || 'zombie';
     this.instanceId = process.env.INSTANCE_ID || 'default';
     this.instanceLocation = process.env.INSTANCE_LOCATION || 'unknown';
     
@@ -47,7 +47,7 @@ class Database {
       if (error.statusCode === 404) {
         console.error('Database not found. Please ensure couchdb-setup container ran successfully.');
       } else if (error.statusCode === 401) {
-        console.error('Authentication failed. Please check COUCHDB_APP_USER and COUCHDB_APP_PASSWORD environment variables.');
+        console.error('Authentication failed. Please check COUCHDB_USER and COUCHDB_PASSWORD environment variables.');
       }
       throw error;
     }
