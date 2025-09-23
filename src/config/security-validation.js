@@ -5,7 +5,7 @@ const INSECURE_DEFAULTS = [
   'password', 
   'your-secret-key-here-change-in-production',
   'your-session-secret-change-in-production',
-  'zombieauth-admin-secret-change-in-production',
+  'zombie-admin-secret-change-in-production',
   'replication-secret-change-in-production',
   'datacenter1-session-secret-change-in-production',
   'datacenter2-session-secret-change-in-production', 
@@ -21,8 +21,8 @@ const PRODUCTION_FORBIDDEN_DEFAULTS = [
 const SECURITY_REQUIREMENTS = {
   COUCHDB_USER: { minLength: 5, pattern: /^[a-zA-Z0-9_-]+$/ },
   COUCHDB_PASSWORD: { minLength: 12, requireComplex: false },
-  ZOMBIEAUTH_JWT_SECRET: { minLength: 32, entropy: 'high' },
-  ZOMBIEAUTH_SESSION_SECRET: { minLength: 32, entropy: 'high' }
+  JWT_SECRET: { minLength: 32, entropy: 'high' },
+  SESSION_SECRET: { minLength: 32, entropy: 'high' }
 };
 
 function validateSecurityConfiguration(serverType = 'full') {

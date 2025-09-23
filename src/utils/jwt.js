@@ -3,7 +3,7 @@ const crypto = require('crypto');
 
 class JWTManager {
   constructor() {
-    this.secret = process.env.ZOMBIEAUTH_JWT_SECRET || 'your-secret-key-here';
+    this.secret = process.env.JWT_SECRET;
     this.issuer = process.env.ISSUER || 'http://localhost:3000';
     this.accessTokenExpiry = process.env.JWT_EXPIRES_IN || '1h';
     this.refreshTokenExpiry = process.env.REFRESH_TOKEN_EXPIRES_IN || '7d';
