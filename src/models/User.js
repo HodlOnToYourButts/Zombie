@@ -9,25 +9,25 @@ class User {
     this.type = 'user';
     this.username = data.username;
     this.email = data.email;
-    this.passwordHash = data.passwordHash;
-    this.firstName = data.firstName;
-    this.lastName = data.lastName;
+    this.password_hash = data.password_hash || data.passwordHash;
+    this.first_name = data.first_name || data.firstName;
+    this.last_name = data.last_name || data.lastName;
     this.groups = data.groups || [];
     this.roles = data.roles || [];
     this.enabled = data.enabled !== false;
-    this.emailVerified = data.emailVerified || false;
-    this.syncStatus = data.syncStatus || 'synced'; // 'synced', 'conflict', 'error'
-    this.createdAt = data.createdAt || new Date().toISOString();
-    this.updatedAt = data.updatedAt || new Date().toISOString();
-    this.lastLogin = data.lastLogin;
+    this.email_verified = data.email_verified || data.emailVerified || false;
+    this.sync_status = data.sync_status || data.syncStatus || 'synced'; // 'synced', 'conflict', 'error'
+    this.created_at = data.created_at || data.createdAt || new Date().toISOString();
+    this.updated_at = data.updated_at || data.updatedAt || new Date().toISOString();
+    this.last_login = data.last_login || data.lastLogin;
     this.metadata = data.metadata || {};
     
     // Instance tracking metadata for conflict resolution
-    this.instanceMetadata = data.instanceMetadata || {
+    this.instance_metadata = data.instance_metadata || data.instanceMetadata || {
       createdBy: process.env.INSTANCE_ID || 'unknown',
-      createdAt: data.createdAt || new Date().toISOString(),
+      createdAt: data.created_at || data.createdAt || new Date().toISOString(),
       lastModifiedBy: process.env.INSTANCE_ID || 'unknown',
-      lastModifiedAt: data.updatedAt || new Date().toISOString(),
+      lastModifiedAt: data.updated_at || data.updatedAt || new Date().toISOString(),
       version: data.instanceMetadata?.version || 1
     };
   }
@@ -38,7 +38,7 @@ class User {
   }
 
   async verifyPassword(password) {
-    return bcrypt.compare(password, this.passwordHash);
+    return bcrypt.compare(password, this.password_hash);
   }
 
   static async findByEmail(email) {
@@ -99,17 +99,17 @@ class User {
       const now = new Date().toISOString();
       const instanceId = process.env.INSTANCE_ID || 'unknown';
       
-      this.updatedAt = now;
+      this.updated_at = now;
       
       // Update instance metadata
-      if (!this.instanceMetadata.createdBy) {
-        this.instanceMetadata.createdBy = instanceId;
-        this.instanceMetadata.createdAt = this.createdAt;
+      if (!this.instance_metadata.createdBy) {
+        this.instance_metadata.createdBy = instanceId;
+        this.instance_metadata.createdAt = this.created_at;
       }
       
-      this.instanceMetadata.lastModifiedBy = instanceId;
-      this.instanceMetadata.lastModifiedAt = now;
-      this.instanceMetadata.version = (this.instanceMetadata.version || 1) + 1;
+      this.instance_metadata.lastModifiedBy = instanceId;
+      this.instance_metadata.lastModifiedAt = now;
+      this.instance_metadata.version = (this.instance_metadata.version || 1) + 1;
       
       const result = await db.insert(this.toJSON());
       this._rev = result.rev;
@@ -132,7 +132,7 @@ class User {
   }
 
   updateLastLogin() {
-    this.lastLogin = new Date().toISOString();
+    this.last_login = new Date().toISOString();
   }
 
   addGroup(group) {
@@ -165,7 +165,7 @@ class User {
 
   // Check if user is effectively usable (enabled AND synced)
   isUsable() {
-    return this.enabled && this.syncStatus === 'synced';
+    return this.enabled && this.sync_status === 'synced';
   }
 
   // Update sync status based on conflict detection
@@ -176,23 +176,23 @@ class User {
       
       if (doc._conflicts && doc._conflicts.length > 0) {
         // User has conflicts - mark as conflict status
-        if (this.syncStatus !== 'conflict') {
-          this.syncStatus = 'conflict';
+        if (this.sync_status !== 'conflict') {
+          this.sync_status = 'conflict';
           // Note: We don't save automatically here to avoid infinite loops
           // This should be called by a separate sync service
         }
       } else {
         // No conflicts - mark as synced
-        if (this.syncStatus !== 'synced') {
-          this.syncStatus = 'synced';
+        if (this.sync_status !== 'synced') {
+          this.sync_status = 'synced';
         }
       }
       
-      return this.syncStatus;
+      return this.sync_status;
     } catch (error) {
       console.error('Error checking sync status for user:', this._id, error);
-      this.syncStatus = 'error';
-      return this.syncStatus;
+      this.sync_status = 'error';
+      return this.sync_status;
     }
   }
 
@@ -203,19 +203,19 @@ class User {
       type: this.type,
       username: this.username,
       email: this.email,
-      passwordHash: this.passwordHash,
-      firstName: this.firstName,
-      lastName: this.lastName,
+      password_hash: this.password_hash,
+      first_name: this.first_name,
+      last_name: this.last_name,
       groups: this.groups,
       roles: this.roles,
       enabled: this.enabled,
-      emailVerified: this.emailVerified,
-      syncStatus: this.syncStatus,
-      createdAt: this.createdAt,
-      updatedAt: this.updatedAt,
-      lastLogin: this.lastLogin,
+      email_verified: this.email_verified,
+      sync_status: this.sync_status,
+      created_at: this.created_at,
+      updated_at: this.updated_at,
+      last_login: this.last_login,
       metadata: this.metadata,
-      instanceMetadata: this.instanceMetadata
+      instance_metadata: this.instance_metadata
     };
   }
 
@@ -224,15 +224,15 @@ class User {
       id: this._id,
       username: this.username,
       email: this.email,
-      firstName: this.firstName,
-      lastName: this.lastName,
+      first_name: this.first_name,
+      last_name: this.last_name,
       groups: this.groups,
       roles: this.roles,
       enabled: this.enabled,
-      emailVerified: this.emailVerified,
-      syncStatus: this.syncStatus,
-      createdAt: this.createdAt,
-      lastLogin: this.lastLogin
+      email_verified: this.email_verified,
+      sync_status: this.sync_status,
+      created_at: this.created_at,
+      last_login: this.last_login
     };
   }
 }

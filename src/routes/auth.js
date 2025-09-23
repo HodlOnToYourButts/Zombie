@@ -33,6 +33,15 @@ router.get('/auth', validationRules.authorize, handleValidationErrors, async (re
 
     // Validate client
     const client = await Client.findByClientId(client_id);
+    if (process.env.DEVELOPMENT_MODE === 'true') {
+      console.log('DEBUG: Client lookup result');
+      console.log('  Looking for client_id:', client_id);
+      console.log('  Client found:', !!client);
+      if (client) {
+        console.log('  Client enabled:', client.enabled);
+        console.log('  Client name:', client.name);
+      }
+    }
     if (!client || !client.enabled) {
       return res.status(400).json({
         error: 'invalid_client',
@@ -42,6 +51,12 @@ router.get('/auth', validationRules.authorize, handleValidationErrors, async (re
 
     // Validate redirect URI
     if (!client.isRedirectUriAllowed(redirect_uri)) {
+      if (process.env.DEVELOPMENT_MODE === 'true') {
+        console.log('DEBUG: redirect_uri validation failed');
+        console.log('  Requested redirect_uri:', redirect_uri);
+        console.log('  Client allowed redirectUris:', client.redirectUris);
+        console.log('  Client ID:', client_id);
+      }
       return res.status(400).json({
         error: 'invalid_request',
         error_description: 'Invalid redirect_uri for this client'

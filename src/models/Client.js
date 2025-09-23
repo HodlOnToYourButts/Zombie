@@ -7,23 +7,23 @@ class Client {
     this._id = data._id || `client:${uuidv4()}`;
     this._rev = data._rev;
     this.type = 'client';
-    this.clientId = data.clientId || this.generateClientId();
-    this.clientSecret = data.clientSecret || this.generateClientSecret();
+    this.client_id = data.client_id || this.generateClientId();
+    this.client_secret = data.client_secret || this.generateClientSecret();
     this.name = data.name;
     this.description = data.description;
-    this.redirectUris = data.redirectUris || [];
+    this.redirect_uris = data.redirect_uris || [];
     this.scopes = data.scopes || ['openid', 'profile', 'email'];
-    this.grantTypes = data.grantTypes || ['authorization_code', 'refresh_token'];
-    this.responseTypes = data.responseTypes || ['code'];
+    this.grant_types = data.grant_types || ['authorization_code', 'refresh_token'];
+    this.response_types = data.response_types || ['code'];
     this.enabled = data.enabled !== false;
     this.confidential = data.confidential !== false; // public vs confidential client
-    this.createdAt = data.createdAt || new Date().toISOString();
-    this.updatedAt = data.updatedAt || new Date().toISOString();
+    this.created_at = data.created_at || new Date().toISOString();
+    this.updated_at = data.updated_at || new Date().toISOString();
     this.metadata = data.metadata || {};
     
     // Instance metadata for cluster tracking
-    this.instanceMetadata = data.instanceMetadata || {
-      version: data.instanceMetadata?.version || 1
+    this.instance_metadata = data.instance_metadata || {
+      version: data.instance_metadata?.version || 1
     };
   }
 
@@ -88,19 +88,19 @@ class Client {
       const now = new Date().toISOString();
       const instanceId = process.env.INSTANCE_ID || 'unknown';
       
-      this.updatedAt = now;
+      this.updated_at = now;
       
       // Update instance metadata
-      console.log(`Client ${this.clientId} save() - instanceMetadata before:`, this.instanceMetadata);
-      if (!this.instanceMetadata.createdBy) {
-        this.instanceMetadata.createdBy = instanceId;
-        this.instanceMetadata.createdAt = this.createdAt;
-        console.log(`Client ${this.clientId} - Setting createdBy to ${instanceId} and createdAt to ${this.createdAt}`);
+      console.log(`Client ${this.client_id} save() - instance_metadata before:`, this.instance_metadata);
+      if (!this.instance_metadata.createdBy) {
+        this.instance_metadata.createdBy = instanceId;
+        this.instance_metadata.createdAt = this.created_at;
+        console.log(`Client ${this.client_id} - Setting createdBy to ${instanceId} and createdAt to ${this.created_at}`);
       }
-      this.instanceMetadata.lastModifiedBy = instanceId;
-      this.instanceMetadata.lastModifiedAt = now;
-      this.instanceMetadata.version = (this.instanceMetadata.version || 1) + 1;
-      console.log(`Client ${this.clientId} save() - instanceMetadata after:`, this.instanceMetadata);
+      this.instance_metadata.lastModifiedBy = instanceId;
+      this.instance_metadata.lastModifiedAt = now;
+      this.instance_metadata.version = (this.instance_metadata.version || 1) + 1;
+      console.log(`Client ${this.client_id} save() - instance_metadata after:`, this.instance_metadata);
       
       const result = await db.insert(this.toJSON());
       this._rev = result.rev;
@@ -124,12 +124,12 @@ class Client {
 
   // Validate client credentials
   validateSecret(providedSecret) {
-    return this.clientSecret === providedSecret;
+    return this.client_secret === providedSecret;
   }
 
   // Check if redirect URI is allowed
   isRedirectUriAllowed(uri) {
-    return this.redirectUris.includes(uri);
+    return this.redirect_uris.includes(uri);
   }
 
   // Check if scope is allowed
@@ -140,12 +140,12 @@ class Client {
 
   // Check if grant type is allowed
   isGrantTypeAllowed(grantType) {
-    return this.grantTypes.includes(grantType);
+    return this.grant_types.includes(grantType);
   }
 
   // Check if response type is allowed
   isResponseTypeAllowed(responseType) {
-    return this.responseTypes.includes(responseType);
+    return this.response_types.includes(responseType);
   }
 
   toJSON() {
@@ -153,44 +153,44 @@ class Client {
       _id: this._id,
       _rev: this._rev,
       type: this.type,
-      clientId: this.clientId,
-      clientSecret: this.clientSecret,
+      client_id: this.client_id,
+      client_secret: this.client_secret,
       name: this.name,
       description: this.description,
-      redirectUris: this.redirectUris,
+      redirect_uris: this.redirect_uris,
       scopes: this.scopes,
-      grantTypes: this.grantTypes,
-      responseTypes: this.responseTypes,
+      grant_types: this.grant_types,
+      response_types: this.response_types,
       enabled: this.enabled,
       confidential: this.confidential,
-      createdAt: this.createdAt,
-      updatedAt: this.updatedAt,
+      created_at: this.created_at,
+      updated_at: this.updated_at,
       metadata: this.metadata,
-      instanceMetadata: this.instanceMetadata
+      instance_metadata: this.instance_metadata
     };
   }
 
   toPublicJSON() {
     return {
       id: this._id,
-      clientId: this.clientId,
+      client_id: this.client_id,
       name: this.name,
       description: this.description,
-      redirectUris: this.redirectUris,
+      redirect_uris: this.redirect_uris,
       scopes: this.scopes,
-      grantTypes: this.grantTypes,
-      responseTypes: this.responseTypes,
+      grant_types: this.grant_types,
+      response_types: this.response_types,
       enabled: this.enabled,
       confidential: this.confidential,
-      createdAt: this.createdAt,
-      updatedAt: this.updatedAt
+      created_at: this.created_at,
+      updated_at: this.updated_at
     };
   }
 
   // Return safe version for client credentials display (mask secret)
   toSafeJSON() {
     const safe = this.toPublicJSON();
-    safe.clientSecret = this.clientSecret ? '••••••••' + this.clientSecret.slice(-4) : null;
+    safe.client_secret = this.client_secret ? '••••••••' + this.client_secret.slice(-4) : null;
     
     // Include syncStatus if it exists (for UI display)
     if (this.syncStatus) {
