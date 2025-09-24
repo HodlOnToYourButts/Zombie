@@ -135,8 +135,8 @@ class ClusterHealth {
         } else {
           // Generate default mapping based on known instances
           this.knownInstances.forEach(instance => {
-            // Default format: couchdb@{instanceId}.zombieauth
-            const nodeName = `couchdb@${instance.id}.zombieauth`;
+            // Default format: couchdb@{instanceId}.zombie
+            const nodeName = `couchdb@${instance.id}.zombie`;
             nodeToInstance[nodeName] = instance.id;
           });
         }
@@ -270,7 +270,7 @@ class ClusterHealth {
       const dbPassword = process.env.COUCHDB_PASSWORD || 'password';
       
       // Use curl-like approach to check CouchDB membership
-      const membershipResponse = await this.makeHealthRequest(`http://${dbUser}:${dbPassword}@couchdb1.zombieauth:5984/_membership`);
+      const membershipResponse = await this.makeHealthRequest(`http://${dbUser}:${dbPassword}@couchdb1.zombie:5984/_membership`);
       
       if (!membershipResponse.ok) {
         throw new Error(`CouchDB membership check failed: ${membershipResponse.status}`);
@@ -282,7 +282,7 @@ class ClusterHealth {
       const nodeHealth = {};
       for (const node of membership.all_nodes) {
         try {
-          const nodeResponse = await this.makeHealthRequest(`http://${dbUser}:${dbPassword}@couchdb1.zombieauth:5984/_node/${node}/_system`);
+          const nodeResponse = await this.makeHealthRequest(`http://${dbUser}:${dbPassword}@couchdb1.zombie:5984/_node/${node}/_system`);
           nodeHealth[node] = nodeResponse.ok ? 'up' : 'down';
         } catch (error) {
           nodeHealth[node] = 'unreachable';

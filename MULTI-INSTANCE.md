@@ -38,7 +38,7 @@ Each CouchDB instance maintains bidirectional replication with the others. Durin
 
 ### 1. Start the Cluster
 ```bash
-./scripts/start-zombieauth.sh
+./scripts/start-zombie.sh
 ```
 
 This will start:
@@ -84,7 +84,7 @@ PRIMARY_COUCHDB_URL=http://couchdb1:5984  # This instance's CouchDB
 PEER_COUCHDB_URLS=http://couchdb2:5984,http://couchdb3:5984  # Other CouchDBs
 COUCHDB_USER=admin
 COUCHDB_PASSWORD=password
-COUCHDB_DATABASE=zombieauth
+COUCHDB_DATABASE=zombie
 ```
 
 ### Manual Container Commands
@@ -94,11 +94,11 @@ If you prefer manual control, use either Docker or Podman:
 ```bash
 # With Docker
 docker-compose up -d couchdb1 couchdb2 couchdb3
-docker-compose up -d zombieauth1 zombieauth2 zombieauth3
+docker-compose up -d zombie1 zombie2 zombie3
 
 # With Podman
 podman-compose up -d couchdb1 couchdb2 couchdb3
-podman-compose up -d zombieauth1 zombieauth2 zombieauth3
+podman-compose up -d zombie1 zombie2 zombie3
 
 # Or use the container utils (after sourcing scripts/container-utils.sh)
 source scripts/container-utils.sh
@@ -224,7 +224,7 @@ curl http://localhost:3000/admin/api/conflicts/stats | jq .
 curl http://admin:password@localhost:5984/_replicator/_all_docs?include_docs=true
 
 # Check for conflicts in a specific document
-curl http://admin:password@localhost:5984/zombieauth/user:example?conflicts=true
+curl http://admin:password@localhost:5984/zombie/user:example?conflicts=true
 ```
 
 ### Common Issues
@@ -236,11 +236,11 @@ curl http://admin:password@localhost:5984/zombieauth/user:example?conflicts=true
 
 **Conflicts not detected:**
 - Wait 30-60 seconds after changes for replication to complete
-- Check CouchDB logs: `docker logs zombieauth-couchdb1`
+- Check CouchDB logs: `docker logs zombie-couchdb1`
 - Verify conflict detection views are created
 
 **Admin interface errors:**
-- Check Zombie logs: `docker logs zombieauth-dc1`
+- Check Zombie logs: `docker logs zombie-dc1`
 - Verify OIDC authentication is working
 - Ensure admin user has proper roles
 
@@ -290,7 +290,7 @@ curl http://admin:password@localhost:5984/zombieauth/user:example?conflicts=true
 1. **CouchDB Backups**:
    ```bash
    # Regular backup of each CouchDB instance
-   curl -X GET http://admin:password@localhost:5984/zombieauth/_all_docs?include_docs=true > backup.json
+   curl -X GET http://admin:password@localhost:5984/zombie/_all_docs?include_docs=true > backup.json
    ```
 
 2. **Configuration Backups**:
@@ -350,18 +350,18 @@ If replication is slow:
 ### Logs Location
 
 **With Docker:**
-- Zombie: `docker logs zombieauth-dc1`
-- CouchDB: `docker logs zombieauth-couchdb1`
+- Zombie: `docker logs zombie-dc1`
+- CouchDB: `docker logs zombie-couchdb1`
 
 **With Podman:**
-- Zombie: `podman logs zombieauth-dc1`
-- CouchDB: `podman logs zombieauth-couchdb1`
+- Zombie: `podman logs zombie-dc1`
+- CouchDB: `podman logs zombie-couchdb1`
 
 **Or use the container utils:**
 ```bash
 source scripts/container-utils.sh
 detect_container_engine
-get_container_logs zombieauth-dc1 100
+get_container_logs zombie-dc1 100
 ```
 
 ### Development

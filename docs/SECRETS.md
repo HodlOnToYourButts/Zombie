@@ -14,7 +14,7 @@ sudo mkdir -p /etc/containers/systemd/secrets
 
 ### 2. Create the Zombie secrets file
 
-Create `/etc/containers/systemd/secrets/zombieauth` with the following content:
+Create `/etc/containers/systemd/secrets/zombie` with the following content:
 
 ```env
 # Admin interface secrets
@@ -22,7 +22,7 @@ ADMIN_CLIENT_SECRET=your_secure_admin_client_secret
 ADMIN_PASSWORD=your_secure_admin_password
 
 # Database connection secrets (for app)
-COUCHDB_PASSWORD=your_secure_zombieauth_db_password
+COUCHDB_PASSWORD=your_secure_zombie_db_password
 COUCHDB_SECRET=your_secure_couchdb_secret
 
 # Application secrets
@@ -45,9 +45,9 @@ COUCHDB_COOKIE=your_secure_couchdb_cookie
 ### 4. Set proper permissions
 
 ```bash
-sudo chmod 600 /etc/containers/systemd/secrets/zombieauth
+sudo chmod 600 /etc/containers/systemd/secrets/zombie
 sudo chmod 600 /etc/containers/systemd/secrets/couchdb
-sudo chown root:root /etc/containers/systemd/secrets/zombieauth
+sudo chown root:root /etc/containers/systemd/secrets/zombie
 sudo chown root:root /etc/containers/systemd/secrets/couchdb
 ```
 
@@ -77,7 +77,7 @@ The quadlets reference secret files as follows:
 
 **Zombie services (OIDC and Admin):**
 ```ini
-Secret=zombieauth,type=env
+Secret=zombie,type=env
 ```
 
 **CouchDB and cluster-status services:**
@@ -92,7 +92,7 @@ This loads the entire secret file as environment variables, making all defined v
 ### Container fails to start
 
 1. Check secret files exist:
-   - `/etc/containers/systemd/secrets/zombieauth`
+   - `/etc/containers/systemd/secrets/zombie`
    - `/etc/containers/systemd/secrets/couchdb`
 2. Verify permissions: `ls -la /etc/containers/systemd/secrets/`
 3. Check file format: each line should be `KEY=value` with no spaces around `=`
@@ -106,7 +106,7 @@ This loads the entire secret file as environment variables, making all defined v
 
 ## Example Secret Files
 
-### `/etc/containers/systemd/secrets/zombieauth`
+### `/etc/containers/systemd/secrets/zombie`
 ```env
 ADMIN_CLIENT_SECRET=Ab3dF7gH9jKl2MnP5qRs8TuV1wXyZ4cE6fGhI0jKlMnO
 ADMIN_PASSWORD=MySecureAdminPassword123!

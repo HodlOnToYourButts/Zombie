@@ -3,13 +3,13 @@ const nano = require('nano');
 class DatabaseSetup {
   constructor() {
     this.couchUrl = process.env.COUCHDB_URL || 'http://localhost:5984';
-    this.dbName = process.env.COUCHDB_DATABASE || 'zombieauth';
-    this.appUser = process.env.COUCHDB_USER || 'zombieauth';
+    this.dbName = process.env.COUCHDB_DATABASE || 'zombie';
+    this.appUser = process.env.COUCHDB_USER || 'zombie';
     this.appPassword = process.env.COUCHDB_PASSWORD;
 
     // Admin credentials for setup (only used for initial setup)
-    this.adminUser = process.env.COUCHDB_ZOMBIEAUTH_USER || 'zombieauth';
-    this.adminPassword = process.env.COUCHDB_ZOMBIEAUTH_PASSWORD || 'zombieauth';
+    this.adminUser = process.env.COUCHDB_USER;
+    this.adminPassword = process.env.COUCHDB_PASSWORD;
   }
 
   async initializeDatabase() {
@@ -41,7 +41,7 @@ class DatabaseSetup {
       if (error.statusCode === 401) {
         console.error('Authentication failed. Please ensure:');
         console.error('1. CouchDB admin credentials are correct (COUCHDB_ADMIN_USER/COUCHDB_ADMIN_PASSWORD)');
-        console.error('2. Or run ./setup-couchdb.sh manually to set up the database');
+        console.error('2. Or run ./scripts/couchdb-setup.sh manually to set up the database');
       }
 
       throw error;

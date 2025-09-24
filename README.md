@@ -53,7 +53,15 @@ If the home lab loses internet connectivity, it continues to authenticate local 
    # Edit .env with your configuration
    ```
 
-4. **Start the server**:
+4. **Set up CouchDB and database**:
+   ```bash
+   # For development with local CouchDB
+   ./scripts/couchdb-setup.sh
+
+   # For container deployments, see Container Setup section below
+   ```
+
+5. **Start the server**:
    ```bash
    npm start
    ```
@@ -69,9 +77,9 @@ If the home lab loses internet connectivity, it continues to authenticate local 
 2. **Deploy with your preferred method**:
    ```bash
    # Example with systemd
-   sudo cp zombieauth.service /etc/systemd/system/
-   sudo systemctl enable zombieauth
-   sudo systemctl start zombieauth
+   sudo cp zombie.service /etc/systemd/system/
+   sudo systemctl enable zombie
+   sudo systemctl start zombie
    ```
 
 ## Configuration
@@ -82,6 +90,40 @@ Zombie uses environment variables for configuration:
 - **Security**: JWT secrets, session configuration
 - **OIDC**: Client settings and endpoints
 - **Network**: CORS origins, rate limiting
+
+## Container Setup
+
+For container-based deployments (Docker/Podman), Zombie provides separate setup containers for clean separation of concerns. Use this instead of the development setup scripts:
+
+### 1. CouchDB Infrastructure Setup
+
+```bash
+# Run couchdb-setup container to create database and user
+docker run --rm --network zombie_default \
+  -e COUCHDB_URL=http://couchdb:5984 \
+  -e COUCHDB_ADMIN_USER=admin \
+  -e COUCHDB_ADMIN_PASSWORD=admin \
+  -e COUCHDB_DATABASE=zombie \
+  -e COUCHDB_USER=zombie \
+  -e COUCHDB_PASSWORD=secure_password \
+  curlimages/curl:latest \
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/HodlOnToYourButts/Zombie/master/scripts/couchdb-setup.sh)"
+```
+
+### 2. Zombie Database Setup
+
+```bash
+# Run zombie-setup container to initialize database structure
+docker run --rm --network zombie_default \
+  -e COUCHDB_URL=http://couchdb:5984 \
+  -e COUCHDB_DATABASE=zombie \
+  -e COUCHDB_USER=zombie \
+  -e COUCHDB_PASSWORD=secure_password \
+  curlimages/curl:latest \
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/HodlOnToYourButts/Zombie/master/scripts/zombie-setup.sh)"
+```
+
+**Setup Order:** Always run `couchdb-setup` first, then `zombie-setup`.
 
 ## OIDC Endpoints
 

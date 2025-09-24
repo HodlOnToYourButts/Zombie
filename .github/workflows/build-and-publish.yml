@@ -10,6 +10,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  SETUP_IMAGE_NAME: ${{ github.repository }}-setup
 
 jobs:
   build-and-publish:
@@ -50,7 +51,7 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Extract metadata
+    - name: Extract metadata for main image
       id: meta
       uses: docker/metadata-action@v5
       with:
@@ -62,25 +63,59 @@ jobs:
           type=semver,pattern={{major}}.{{minor}}
           type=raw,value=latest,enable={{is_default_branch}}
 
+    - name: Extract metadata for setup image
+      id: meta-setup
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.SETUP_IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=raw,value=latest,enable={{is_default_branch}}
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
-    - name: Build and push Docker image
-      id: build
+    - name: Build and push main Docker image
+      id: build-main
       uses: docker/build-push-action@v5
       with:
         context: .
+        file: ./Dockerfile
         platforms: linux/amd64,linux/arm64
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+        cache-from: type=gha,scope=main
+        cache-to: type=gha,mode=max,scope=main
 
-    - name: Generate artifact attestation
+    - name: Build and push setup Docker image
+      id: build-setup
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile.setup
+        platforms: linux/amd64,linux/arm64
+        push: ${{ github.event_name != 'pull_request' }}
+        tags: ${{ steps.meta-setup.outputs.tags }}
+        labels: ${{ steps.meta-setup.outputs.labels }}
+        cache-from: type=gha,scope=setup
+        cache-to: type=gha,mode=max,scope=setup
+
+    - name: Generate artifact attestation for main image
       if: github.event_name != 'pull_request'
       uses: actions/attest-build-provenance@v1
       with:
         subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
-        subject-digest: ${{ steps.build.outputs.digest }}
+        subject-digest: ${{ steps.build-main.outputs.digest }}
+        push-to-registry: true
+
+    - name: Generate artifact attestation for setup image
+      if: github.event_name != 'pull_request'
+      uses: actions/attest-build-provenance@v1
+      with:
+        subject-name: ${{ env.REGISTRY }}/${{ env.SETUP_IMAGE_NAME}}
+        subject-digest: ${{ steps.build-setup.outputs.digest }}
         push-to-registry: true

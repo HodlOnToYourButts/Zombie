@@ -11,7 +11,7 @@ function getAdminClientConfig(req) {
   
   return {
     client_id: clientId,
-    client_secret: process.env.ADMIN_CLIENT_SECRET || 'zombieauth-admin-secret-change-in-production',
+    client_secret: process.env.ADMIN_CLIENT_SECRET || 'zombie-admin-secret-change-in-production',
     redirect_uri: `${protocol}://${host}/callback`,
     post_logout_redirect_uri: `${protocol}://${host}/login`,
     response_types: ['code'],
@@ -27,7 +27,7 @@ console.log(`DEBUG: ADMIN_CLIENT_CONFIG using client_id: ${clientIdForConfig}`);
 
 const ADMIN_CLIENT_CONFIG = {
   client_id: clientIdForConfig,
-  client_secret: process.env.ADMIN_CLIENT_SECRET || 'zombieauth-admin-secret-change-in-production',
+  client_secret: process.env.ADMIN_CLIENT_SECRET || 'zombie-admin-secret-change-in-production',
   redirect_uri: process.env.ADMIN_REDIRECT_URI || 'http://localhost:4000/callback',
   post_logout_redirect_uri: process.env.ADMIN_LOGOUT_REDIRECT_URI || 'http://localhost:4000/login',
   response_types: ['code'],

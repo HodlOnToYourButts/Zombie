@@ -1,0 +1,13 @@
+FROM alpine:latest
+
+# Install curl for CouchDB API calls
+RUN apk add --no-cache curl
+
+# Copy the zombie-setup script
+COPY scripts/zombie-setup.sh /scripts/zombie-setup.sh
+
+# Make the script executable
+RUN chmod +x /scripts/zombie-setup.sh
+
+# Set the default command
+CMD ["/scripts/zombie-setup.sh"]

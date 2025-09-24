@@ -1,12 +1,10 @@
 #!/bin/sh
 set -e
 
-echo "🧟 Setting up Zombie application database..."
+echo "🧟 Setting up Zombie application database structure..."
 
 # Get configuration from environment variables
 COUCHDB_URL=${COUCHDB_URL:-"http://couchdb:5984"}
-COUCHDB_ADMIN_USER=${COUCHDB_ADMIN_USER:-"admin"}
-COUCHDB_ADMIN_PASSWORD=${COUCHDB_ADMIN_PASSWORD:-"admin"}
 DB_NAME=${COUCHDB_DATABASE:-"zombie"}
 APP_USER=${COUCHDB_USER:-"zombie"}
 APP_PASSWORD=${COUCHDB_PASSWORD}
@@ -19,68 +17,6 @@ fi
 echo "CouchDB URL: $COUCHDB_URL"
 echo "Database: $DB_NAME"
 echo "Application User: $APP_USER"
-
-# Wait for CouchDB and _users database to be ready
-echo "⏳ Waiting for CouchDB and _users database to be ready..."
-until curl -f -s -u "$COUCHDB_ADMIN_USER:$COUCHDB_ADMIN_PASSWORD" "$COUCHDB_URL/_users" > /dev/null; do
-    echo "CouchDB _users database not ready, waiting..."
-    sleep 5
-done
-
-echo "✅ CouchDB infrastructure is ready"
-
-# Create Zombie application database
-echo "📁 Creating Zombie database: $DB_NAME"
-curl -s -X PUT -u "$COUCHDB_ADMIN_USER:$COUCHDB_ADMIN_PASSWORD" "$COUCHDB_URL/$DB_NAME" || {
-  if [ $? -eq 22 ]; then
-    echo "ℹ️  Database already exists"
-  else
-    echo "❌ Failed to create database"
-    exit 1
-  fi
-}
-
-# Create Zombie application user
-echo "👤 Creating Zombie application user: $APP_USER"
-USER_DOC="{
-  \"_id\": \"org.couchdb.user:$APP_USER\",
-  \"name\": \"$APP_USER\",
-  \"type\": \"user\",
-  \"roles\": [],
-  \"password\": \"$APP_PASSWORD\"
-}"
-
-curl -s -X POST -u "$COUCHDB_ADMIN_USER:$COUCHDB_ADMIN_PASSWORD" \
-     -H "Content-Type: application/json" \
-     -d "$USER_DOC" \
-     "$COUCHDB_URL/_users" || {
-  if [ $? -eq 22 ]; then
-    echo "ℹ️  Application user already exists"
-  else
-    echo "❌ Failed to create application user"
-    exit 1
-  fi
-}
-
-# Set database permissions (make app user admin of its own database)
-echo "🔐 Setting database permissions..."
-SECURITY_DOC="{
-  \"members\": {
-    \"names\": [\"$APP_USER\"],
-    \"roles\": []
-  },
-  \"admins\": {
-    \"names\": [\"$APP_USER\"],
-    \"roles\": []
-  }
-}"
-
-curl -s -X PUT -u "$COUCHDB_ADMIN_USER:$COUCHDB_ADMIN_PASSWORD" \
-     -H "Content-Type: application/json" \
-     -d "$SECURITY_DOC" \
-     "$COUCHDB_URL/$DB_NAME/_security"
-
-echo "✅ Database and user setup completed. Now switching to app user for Zombie-specific setup..."
 
 # From here on, use app user credentials for all operations
 # Wait for app user to be able to access the database
