@@ -258,7 +258,22 @@ class DatabaseSetup {
       await db.insert(clientsDesignDoc);
     } catch (error) {
       if (error.statusCode === 409) {
-        console.log('ℹ️  Clients design document may already exist');
+        console.log('ℹ️  Clients design document exists, checking if update needed...');
+        try {
+          // Get existing design document
+          const existing = await db.get('_design/clients');
+          // Check if it has the old camelCase fields
+          const hasOldStructure = existing.views?.by_client_id?.map?.includes('doc.clientId');
+
+          if (hasOldStructure) {
+            console.log('🔄 Updating clients design document to use snake_case fields...');
+            clientsDesignDoc._rev = existing._rev;
+            await db.insert(clientsDesignDoc);
+            console.log('✅ Clients design document updated successfully');
+          }
+        } catch (updateError) {
+          console.log('ℹ️  Could not check/update existing clients design document:', updateError.message);
+        }
       } else {
         throw error;
       }
