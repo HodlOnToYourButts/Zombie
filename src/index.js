@@ -16,7 +16,6 @@ const slowDown = require('express-slow-down');
 const { sanitizeInput } = require('./middleware/validation');
 
 const database = require('./database');
-const DatabaseSetup = require('./utils/database-setup');
 const authRoutes = require('./routes/auth');
 const sessionManager = require('./utils/session-manager');
 const SyncMonitor = require('./services/sync-monitor');
@@ -220,8 +219,7 @@ async function startOIDCServer() {
 
     // Initialize database structure (design documents, indexes, etc.)
     console.log('Setting up database structure...');
-    const dbSetup = new DatabaseSetup();
-    await dbSetup.initializeDatabase();
+    await database.initializeDatabaseStructure();
 
     // Initialize and start sync monitor
     console.log('Starting sync monitor...');
