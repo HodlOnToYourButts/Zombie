@@ -166,9 +166,10 @@ class Database {
 
     try {
       await this.db.insert(usersDesignDoc);
+      console.log('✅ Users design document created successfully');
     } catch (error) {
       if (error.statusCode === 409) {
-        console.log('ℹ️  Users design document may already exist');
+        console.log('ℹ️  Users design document already exists');
       } else {
         throw error;
       }
@@ -200,9 +201,10 @@ class Database {
 
     try {
       await this.db.insert(sessionsDesignDoc);
+      console.log('✅ Sessions design document created successfully');
     } catch (error) {
       if (error.statusCode === 409) {
-        console.log('ℹ️  Sessions design document may already exist');
+        console.log('ℹ️  Sessions design document already exists');
       } else {
         throw error;
       }
@@ -225,6 +227,7 @@ class Database {
 
     try {
       await this.db.insert(clientsDesignDoc);
+      console.log('✅ Clients design document created successfully');
     } catch (error) {
       if (error.statusCode === 409) {
         console.log('ℹ️  Clients design document exists, checking if update needed...');
@@ -239,6 +242,8 @@ class Database {
             clientsDesignDoc._rev = existing._rev;
             await this.db.insert(clientsDesignDoc);
             console.log('✅ Clients design document updated successfully');
+          } else {
+            console.log('ℹ️  Clients design document is already up to date');
           }
         } catch (updateError) {
           console.log('ℹ️  Could not check/update existing clients design document:', updateError.message);
@@ -268,9 +273,10 @@ class Database {
 
     try {
       await this.db.insert(authCodesDesignDoc);
+      console.log('✅ Authorization codes design document created successfully');
     } catch (error) {
       if (error.statusCode === 409) {
-        console.log('ℹ️  Authorization codes design document may already exist');
+        console.log('ℹ️  Authorization codes design document already exists');
       } else {
         throw error;
       }
@@ -296,9 +302,10 @@ class Database {
 
     try {
       await this.db.insert(refreshTokensDesignDoc);
+      console.log('✅ Refresh tokens design document created successfully');
     } catch (error) {
       if (error.statusCode === 409) {
-        console.log('ℹ️  Refresh tokens design document may already exist');
+        console.log('ℹ️  Refresh tokens design document already exists');
       } else {
         throw error;
       }
@@ -324,9 +331,10 @@ class Database {
 
     try {
       await this.db.insert(instanceDesignDoc);
+      console.log('✅ Instance metadata design document created successfully');
     } catch (error) {
       if (error.statusCode === 409) {
-        console.log('ℹ️  Instance metadata design document may already exist');
+        console.log('ℹ️  Instance metadata design document already exists');
       } else {
         throw error;
       }
@@ -345,9 +353,10 @@ class Database {
 
     try {
       await this.db.createIndex(userIndex);
+      console.log('✅ User username index created successfully');
     } catch (error) {
       if (error.statusCode === 409) {
-        console.log('ℹ️  User username index may already exist');
+        console.log('ℹ️  User username index already exists');
       } else {
         throw error;
       }
@@ -364,9 +373,10 @@ class Database {
 
     try {
       await this.db.createIndex(sessionIndex);
+      console.log('✅ Session index created successfully');
     } catch (error) {
       if (error.statusCode === 409) {
-        console.log('ℹ️  Session index may already exist');
+        console.log('ℹ️  Session index already exists');
       } else {
         throw error;
       }
@@ -383,9 +393,10 @@ class Database {
 
     try {
       await this.db.createIndex(clientIndex);
+      console.log('✅ Client index created successfully');
     } catch (error) {
       if (error.statusCode === 409) {
-        console.log('ℹ️  Client index may already exist');
+        console.log('ℹ️  Client index already exists');
       } else {
         throw error;
       }
@@ -405,9 +416,10 @@ class Database {
 
     try {
       await this.db.insert(appMetadata);
+      console.log('✅ Application metadata created successfully');
     } catch (error) {
       if (error.statusCode === 409) {
-        console.log('ℹ️  Application metadata may already exist');
+        console.log('ℹ️  Application metadata already exists');
       } else {
         throw error;
       }
