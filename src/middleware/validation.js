@@ -44,12 +44,7 @@ const commonRules = {
 
 // Validation rule sets for different endpoints
 const validationRules = {
-  // Authentication endpoints
-  login: [
-    commonRules.username.withMessage('Username is required'),
-    body('password').notEmpty().withMessage('Password is required')
-  ],
-  
+
   register: [
     commonRules.username,
     commonRules.email,
@@ -177,7 +172,7 @@ const handleValidationErrors = (req, res, next) => {
       message: error.msg,
       value: error.value
     }));
-    
+
     // Log validation failures for security monitoring
     console.warn('Validation failed:', {
       ip: req.ip,
@@ -185,7 +180,21 @@ const handleValidationErrors = (req, res, next) => {
       path: req.path,
       errors: errorMessages
     });
-    
+
+    // Special handling for register page to render with theme
+    if (req.path === '/join' && req.method === 'POST') {
+      const returnUrl = req.body.returnUrl || req.get('Referer') || '/';
+      const errorMessage = errorMessages.map(e => e.message).join(', ');
+
+      return res.render('register', {
+        layout: false,
+        error: errorMessage,
+        username: req.body.username,
+        email: req.body.email,
+        returnUrl
+      });
+    }
+
     return res.status(400).json({
       error: 'Invalid input',
       details: errorMessages

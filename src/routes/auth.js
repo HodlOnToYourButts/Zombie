@@ -460,8 +460,8 @@ function redirectWithError(res, redirectUri, state, error, errorDescription) {
 }
 
 // User Registration Routes
-router.get('/register', (req, res) => {
-  const returnUrl = req.query.returnUrl || req.get('Referer') || '/login';
+router.get('/join', (req, res) => {
+  const returnUrl = req.query.returnUrl || req.get('Referer') || '/';
   res.render('register', {
     layout: false,
     error: req.query.error,
@@ -470,10 +470,10 @@ router.get('/register', (req, res) => {
   });
 });
 
-router.post('/register', validationRules.register, handleValidationErrors, async (req, res) => {
+router.post('/join', validationRules.register, handleValidationErrors, async (req, res) => {
   try {
     const { username, email, password, confirmPassword, returnUrl } = req.body;
-    const finalReturnUrl = returnUrl || req.get('Referer') || '/login';
+    const finalReturnUrl = returnUrl || req.get('Referer') || '/';
     
     // Validate inputs
     if (!username || !email || !password || !confirmPassword) {
@@ -571,10 +571,6 @@ router.post('/register', validationRules.register, handleValidationErrors, async
   }
 });
 
-// General login route 
-router.get('/login', (req, res) => {
-  res.render('login', { layout: false });
-});
 
 // OIDC logout endpoint
 router.get('/logout', (req, res) => {

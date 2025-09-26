@@ -197,7 +197,7 @@ app.get('/.well-known/openid_configuration', (req, res) => {
 // Apply rate limiting only in production
 if (process.env.DEVELOPMENT_MODE !== 'true') {
   app.use('/login', authLimiter, speedLimiter);
-  app.use('/register', authLimiter, speedLimiter);
+  app.use('/join', authLimiter, speedLimiter);
   app.use('/oauth', authLimiter, speedLimiter);
   app.use('/token', authLimiter);
   app.use('/authorize', authLimiter);

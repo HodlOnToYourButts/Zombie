@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up - Zombie</title>
+    <title>Zombie | Join the Horde</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link href="/vendor/bootstrap/bootstrap.min.css" rel="stylesheet">
     <link href="/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
@@ -82,8 +82,8 @@
                     <div class="card-body p-5">
                         <div class="text-center mb-4">
                             <span class="logo">🧟</span>
-                            <h2 class="mt-2">Create Account</h2>
-                            <p class="text-muted">Join Zombie</p>
+                            <h2 class="mt-2">Join the Horde</h2>
+                            <p class="text-muted">Become a zombie</p>
                         </div>
 
                         {{#if error}}
@@ -98,7 +98,7 @@
                         </div>
                         {{/if}}
 
-                        <form method="POST" action="/register">
+                        <form method="POST" action="/join">
                             <input type="hidden" name="returnUrl" value="{{returnUrl}}">
                             <div class="mb-3">
                                 <label for="username" class="form-label">Username</label>
@@ -129,17 +129,11 @@
 
                         <div class="text-center mt-4">
                             <small class="text-muted">
-                                Already have an account? 
-                                <a href="{{returnUrl}}" class="text-decoration-none">Sign in here</a>
+                                Already have an account?
+                                <a href="#" onclick="history.back(); return false;" class="text-decoration-none">Login</a>
                             </small>
                         </div>
 
-                        <div class="text-center mt-3">
-                            <small class="text-muted">
-                                Need admin access? 
-                                <a href="/admin/login" class="text-decoration-none">Admin Login</a>
-                            </small>
-                        </div>
                     </div>
                 </div>
             </div>
