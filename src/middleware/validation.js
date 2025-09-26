@@ -92,7 +92,7 @@ const validationRules = {
     body('code')
       .optional()
       .isLength({ min: 16, max: 1024 })
-      .matches(/^[A-Za-z0-9.-_]+$/)
+      .matches(/^[A-Za-z0-9._=-]+$/)
       .withMessage('Invalid authorization code format'),
     body('redirect_uri')
       .optional()
