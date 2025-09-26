@@ -199,7 +199,9 @@ const sanitizeInput = (req, res, next) => {
   // Remove null bytes and control characters
   const sanitizeString = (str) => {
     if (typeof str !== 'string') return str;
-    return str.replace(/[\u0000-\u001F\u007F]/g, '');
+    // Remove null bytes and other control characters (but keep tabs \x09, newlines \x0A, carriage returns \x0D)
+    // eslint-disable-next-line no-control-regex
+    return str.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
   };
   
   // Recursively sanitize object properties

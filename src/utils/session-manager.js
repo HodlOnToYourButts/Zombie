@@ -48,7 +48,7 @@ class SessionManager {
           delete global.sessionStore[sessionId];
           this.removeUserSession(userId);
           resolve(true);
-        } catch (err) {
+        } catch {
           resolve(false);
         }
       }

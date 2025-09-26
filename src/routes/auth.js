@@ -234,7 +234,7 @@ async function handleTokenRequest(req, res) {
       let codePayload;
       try {
         codePayload = jwtManager.verifyToken(code, 'refresh'); // Using refresh secret for auth codes
-      } catch (error) {
+      } catch {
         return res.status(400).json({
           error: 'invalid_grant',
           error_description: 'Invalid or expired authorization code'
@@ -324,7 +324,7 @@ async function handleTokenRequest(req, res) {
       let tokenPayload;
       try {
         tokenPayload = jwtManager.verifyToken(refresh_token, 'refresh');
-      } catch (error) {
+      } catch {
         return res.status(400).json({
           error: 'invalid_grant',
           error_description: 'Invalid or expired refresh token'
@@ -396,7 +396,7 @@ router.get('/userinfo', async (req, res) => {
     let tokenPayload;
     try {
       tokenPayload = jwtManager.verifyToken(accessToken, 'access');
-    } catch (error) {
+    } catch {
       return res.status(401).json({
         error: 'invalid_token',
         error_description: 'Invalid or expired access token'

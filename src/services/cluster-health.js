@@ -277,7 +277,7 @@ class ClusterHealth {
         try {
           const nodeResponse = await this.makeHealthRequest(`http://${dbUser}:${dbPassword}@couchdb1.zombie:5984/_node/${node}/_system`);
           nodeHealth[node] = nodeResponse.ok ? 'up' : 'down';
-        } catch (error) {
+        } catch {
           nodeHealth[node] = 'unreachable';
         }
       }

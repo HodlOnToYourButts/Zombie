@@ -135,7 +135,7 @@ class ConflictDetector {
           data: conflictDoc,
           instanceMetadata: conflictDoc.instanceMetadata
         });
-      } catch (error) {
+      } catch {
         console.warn(`Could not retrieve conflict version ${conflictRev} for ${doc._id}`);
       }
     }
@@ -179,7 +179,7 @@ class ConflictDetector {
           enabled: conflictDoc.enabled,
           instanceMetadata: conflictDoc.instanceMetadata
         });
-      } catch (error) {
+      } catch {
         console.warn(`Could not retrieve conflict version ${conflictRev} for user ${userDoc._id}`);
       }
     }

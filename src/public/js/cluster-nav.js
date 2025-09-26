@@ -1,6 +1,5 @@
 // Navigation bar cluster status monitoring
 let clusterStatusInterval;
-let isolationWarning = null;
 
 document.addEventListener('DOMContentLoaded', function() {
     initializeClusterNavStatus();
@@ -102,8 +101,7 @@ function displayClusterNavStatus(health, contentElement) {
         return;
     }
     
-    const { instances, summary } = health;
-    const healthyPercent = Math.round((summary.healthy / summary.total) * 100);
+    const { summary } = health;
     
     // Remove response time calculation for performance
     
