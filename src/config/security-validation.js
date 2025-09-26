@@ -1,5 +1,3 @@
-const crypto = require('crypto');
-
 // List of insecure default values that should never be used in production
 const INSECURE_DEFAULTS = [
   'password', 
@@ -134,7 +132,7 @@ function isComplexPassword(password) {
   const hasUpper = /[A-Z]/.test(password);
   const hasLower = /[a-z]/.test(password);
   const hasNumber = /\d/.test(password);
-  const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+  const hasSpecial = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password);
   
   return hasUpper && hasLower && hasNumber && hasSpecial;
 }

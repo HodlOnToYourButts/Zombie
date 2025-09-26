@@ -92,7 +92,7 @@ const validationRules = {
     body('code')
       .optional()
       .isLength({ min: 16, max: 1024 })
-      .matches(/^[A-Za-z0-9\.\-_]+$/)
+      .matches(/^[A-Za-z0-9.-_]+$/)
       .withMessage('Invalid authorization code format'),
     body('redirect_uri')
       .optional()
@@ -199,7 +199,7 @@ const sanitizeInput = (req, res, next) => {
   // Remove null bytes and control characters
   const sanitizeString = (str) => {
     if (typeof str !== 'string') return str;
-    return str.replace(/[\x00-\x1F\x7F]/g, '');
+    return str.replace(/[\u0000-\u001F\u007F]/g, '');
   };
   
   // Recursively sanitize object properties

@@ -129,11 +129,11 @@ class Database {
       await this.createClientsDesignDoc();
       await this.createAuthCodesDesignDoc();
       await this.createRefreshTokensDesignDoc();
+      await this.createActivitiesDesignDoc();
       await this.createInstancesDesignDoc();
 
-      // Create indexes for better query performance
-      console.log('📊 Creating database indexes...');
-      await this.createDatabaseIndexes();
+      // Note: We rely on design document views instead of Mango indexes
+      // The views in our design documents provide all necessary indexing
 
       // Create application metadata document
       console.log('🏠 Creating application metadata document...');
@@ -218,6 +218,9 @@ class Database {
       views: {
         by_client_id: {
           map: 'function(doc) { if (doc.type === "client" && doc.client_id) { emit(doc.client_id, doc); } }'
+        },
+        by_name: {
+          map: 'function(doc) { if (doc.type === "client" && doc.name) { emit(doc.name, doc); } }'
         },
         by_type: {
           map: 'function(doc) { if (doc.type === "client" && doc.grant_types) { doc.grant_types.forEach(function(type) { emit(type, doc); }); } }'
@@ -306,6 +309,35 @@ class Database {
     } catch (error) {
       if (error.statusCode === 409) {
         console.log('ℹ️  Refresh tokens design document already exists');
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  async createActivitiesDesignDoc() {
+    console.log('📝 Creating activities design document...');
+    const activitiesDesignDoc = {
+      _id: '_design/activities',
+      views: {
+        by_timestamp: {
+          map: 'function(doc) { if (doc.type === "activity" && doc.timestamp) { emit(doc.timestamp, doc); } }'
+        },
+        by_username: {
+          map: 'function(doc) { if (doc.type === "activity" && doc.username) { emit(doc.username, doc); } }'
+        },
+        by_action: {
+          map: 'function(doc) { if (doc.type === "activity" && doc.action) { emit(doc.action, doc); } }'
+        }
+      }
+    };
+
+    try {
+      await this.db.insert(activitiesDesignDoc);
+      console.log('✅ Activities design document created successfully');
+    } catch (error) {
+      if (error.statusCode === 409) {
+        console.log('ℹ️  Activities design document already exists');
       } else {
         throw error;
       }

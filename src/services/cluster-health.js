@@ -1,5 +1,3 @@
-const database = require('../database');
-
 // Global isolation state to persist across instances
 global.clusterIsolationState = global.clusterIsolationState || {
   isolationStartTime: null,
@@ -79,9 +77,6 @@ class ClusterHealth {
 
     try {
       // Get database credentials from environment variables
-      const dbUser = process.env.COUCHDB_USER || 'admin';
-      const dbPassword = process.env.COUCHDB_PASSWORD || 'password';
-      
       // Get the cluster status service URL for this instance
       const currentInstance = this.knownInstances.find(instance => instance.id === currentInstanceId);
       if (!currentInstance) {
@@ -262,9 +257,7 @@ class ClusterHealth {
         throw new Error('Database not initialized. Call initialize() first.');
       }
       
-      // Check cluster membership using CouchDB directly through our database connection
-      const db = this.database.getDb();
-      
+      // Check cluster membership using CouchDB directly
       // Get database credentials from environment variables  
       const dbUser = process.env.COUCHDB_USER || 'admin';
       const dbPassword = process.env.COUCHDB_PASSWORD || 'password';

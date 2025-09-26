@@ -211,7 +211,6 @@ async function handleTokenRequest(req, res) {
       code,
       redirect_uri,
       client_id,
-      client_secret,
       refresh_token
     } = req.body;
 

@@ -116,7 +116,7 @@ app.use(cors(corsOptions));
 app.use(express.json({ limit: '1mb' })); // Limit payload size
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use(sanitizeInput); // Sanitize all inputs
-app.use(methodOverride(function (req, res) {
+app.use(methodOverride(function (req) {
   if (req.body && typeof req.body === 'object' && '_method' in req.body) {
     // Look in urlencoded POST bodies and delete it
     const method = req.body._method;

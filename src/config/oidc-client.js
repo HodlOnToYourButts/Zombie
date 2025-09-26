@@ -1,10 +1,7 @@
-const crypto = require('crypto');
-
 // Dynamic OIDC Client configuration based on current request
 function getAdminClientConfig(req) {
   const protocol = req.protocol || 'http';
   const host = req.get('host') || 'localhost:3000';
-  const instanceId = process.env.INSTANCE_ID || 'default';
   
   const clientId = process.env.DEFAULT_CLIENT_ID;
   console.log(`DEBUG: OIDC getAdminClientConfig using client_id: ${clientId}`);

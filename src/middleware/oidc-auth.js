@@ -1,8 +1,6 @@
 // Node.js 18+ has built-in fetch
 const { URLSearchParams } = require('url');
-const { ADMIN_CLIENT_CONFIG, getAdminClientConfig, getOidcEndpoints } = require('../config/oidc-client');
-const jwtManager = require('../utils/jwt');
-const User = require('../models/User');
+const { getAdminClientConfig, getOidcEndpoints } = require('../config/oidc-client');
 
 class OIDCAuthMiddleware {
   constructor() {
@@ -25,7 +23,7 @@ class OIDCAuthMiddleware {
   }
 
   // Exchange authorization code for tokens
-  async exchangeCodeForTokens(req, code, state) {
+  async exchangeCodeForTokens(req, code) {
     try {
       const clientConfig = getAdminClientConfig(req);
       const params = new URLSearchParams({
