@@ -1,8 +1,9 @@
+const { v4: uuidv4 } = require('uuid');
 const database = require('../database');
 
 class Activity {
   constructor(data = {}) {
-    this._id = data._id;
+    this._id = data._id || `activity:${uuidv4()}`;
     this._rev = data._rev;
     this.type = 'activity';
     this.timestamp = data.timestamp || new Date().toISOString();
